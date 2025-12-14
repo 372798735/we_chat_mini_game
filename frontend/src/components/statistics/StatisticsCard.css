@@ -1,0 +1,175 @@
+.statistics-card {
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.statistics-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
+.statistics-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.statistics-card-title {
+  font-size: 14px;
+  color: rgba(0, 0, 0, 0.65);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.statistics-card-tooltip {
+  font-size: 12px;
+  opacity: 0.6;
+  cursor: help;
+}
+
+.statistics-card-icon {
+  font-size: 20px;
+  opacity: 0.8;
+}
+
+.statistics-card-content {
+  margin-bottom: 8px;
+}
+
+.statistics-card-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.88);
+  line-height: 1.2;
+  margin-bottom: 4px;
+}
+
+.statistics-card-loading {
+  color: rgba(0, 0, 0, 0.25);
+  animation: statistics-loading 1s ease-in-out infinite;
+}
+
+@keyframes statistics-loading {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.8; }
+}
+
+.statistics-card-subtitle {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  line-height: 1.4;
+  margin-bottom: 8px;
+}
+
+.statistics-card-trend {
+  display: flex;
+  align-items: center;
+  font-size: 12px;
+  gap: 4px;
+}
+
+.statistics-card-trend-text {
+  color: rgba(0, 0, 0, 0.45);
+  margin-left: 4px;
+}
+
+.statistics-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* 颜色变体 */
+.statistics-card-primary {
+  border-left: 4px solid #1890ff;
+}
+
+.statistics-card-success {
+  border-left: 4px solid #52c41a;
+}
+
+.statistics-card-warning {
+  border-left: 4px solid #faad14;
+}
+
+.statistics-card-danger {
+  border-left: 4px solid #ff4d4f;
+}
+
+.statistics-card-info {
+  border-left: 4px solid #13c2c2;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .statistics-card-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .statistics-card-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .statistics-card-value {
+    font-size: 20px;
+  }
+
+  .statistics-card-title {
+    font-size: 13px;
+  }
+
+  .statistics-card-header {
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .statistics-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .statistics-card-value {
+    font-size: 18px;
+  }
+}
+
+/* 加载状态 */
+.statistics-card.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* 可点击状态 */
+.statistics-card[style*="cursor: pointer"]:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* 特殊数值格式化 */
+.statistics-card-value[data-format="percentage"]::after {
+  content: "%";
+  font-size: 16px;
+  margin-left: 2px;
+}
+
+.statistics-card-value[data-format="hours"]::after {
+  content: "h";
+  font-size: 16px;
+  margin-left: 2px;
+  opacity: 0.7;
+}
+
+.statistics-card-value[data-format="minutes"]::after {
+  content: "min";
+  font-size: 16px;
+  margin-left: 2px;
+  opacity: 0.7;
+}

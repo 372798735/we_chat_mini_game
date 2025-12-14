@@ -1,0 +1,331 @@
+import React, { useState } from 'react';
+import {
+  Card,
+  Button,
+  Tag,
+  Tooltip,
+  Dropdown,
+  Space,
+  Modal,
+} from 'antd';
+import { CardContent } from '../common';
+import {
+  MoreOutlined,
+  PlayCircleOutlined,
+  PauseCircleOutlined,
+  CheckCircleOutlined,
+  ClockCircleOutlined,
+  ExclamationCircleOutlined,
+} from '@ant-design/icons';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import 'dayjs/locale/zh-cn';
+
+import { Card as CustomCard, Button as CustomButton } from '../common';
+import type { Task, TaskPriority, TaskStatus } from '../../types/task';
+import './TaskCard.css';
+
+dayjs.extend(relativeTime);
+dayjs.locale('zh-cn');
+
+interface TaskCardProps {
+  task: Task;
+  onStart?: (task: Task) => void;
+  onPause?: (task: Task) => void;
+  onComplete?: (task: Task) => void;
+  onEdit?: (task: Task) => void;
+  onDelete?: (task: Task) => void;
+}
+
+/**
+ * 任务卡片组件
+ *
+ * @param props - 任务卡片属性
+ * @returns JSX.Element
+ */
+export const TaskCard: React.FC<TaskCardProps> = ({
+  task,
+  onStart,
+  onPause,
+  onComplete,
+  onEdit,
+  onDelete,
+}) => {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const getPriorityColor = (priority: TaskPriority) => {
+    switch (priority) {
+      case 'high':
+        return '#ff4d4f';
+      case 'medium':
+        return '#faad14';
+      case 'low':
+        return '#52c41a';
+      default:
+        return '#d9d9d9';
+    }
+  };
+
+  const getStatusIcon = (status: TaskStatus) => {
+    switch (status) {
+      case 'pending':
+        return <ClockCircleOutlined style={{ color: '#8c8c8c' }} />;
+      case 'in_progress':
+        return <PlayCircleOutlined style={{ color: '#1890ff' }} />;
+      case 'completed':
+        return <CheckCircleOutlined style={{ color: '#52c41a' }} />;
+      case 'paused':
+        return <PauseCircleOutlined style={{ color: '#faad14' }} />;
+      case 'cancelled':
+        return <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />;
+      default:
+        return <ClockCircleOutlined style={{ color: '#8c8c8c' }} />;
+    }
+  };
+
+  const getStatusText = (status: TaskStatus) => {
+    switch (status) {
+      case 'pending':
+        return '待处理';
+      case 'in_progress':
+        return '进行中';
+      case 'completed':
+        return '已完成';
+      case 'paused':
+        return '已暂停';
+      case 'cancelled':
+        return '已取消';
+      default:
+        return '未知';
+    }
+  };
+
+  const formatDuration = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hours > 0) {
+      return `${hours}小时${mins > 0 ? `${mins}分钟` : ''}`;
+    }
+    return `${mins}分钟`;
+  };
+
+  const isOverdue = task.dueDate && dayjs(task.dueDate).isBefore(dayjs()) && task.status !== 'completed';
+
+  const getActionButtons = () => {
+    const buttons = [];
+
+    // 根据状态添加主要操作按钮
+    switch (task.status) {
+      case 'pending':
+        buttons.push(
+          <CustomButton
+            key="start"
+            variant="primary"
+            size="small"
+            icon={<PlayCircleOutlined />}
+            onClick={() => onStart?.(task)}
+          >
+            开始
+          </CustomButton>
+        );
+        break;
+      case 'in_progress':
+        buttons.push(
+          <CustomButton
+            key="pause"
+            variant="warning"
+            size="small"
+            icon={<PauseCircleOutlined />}
+            onClick={() => onPause?.(task)}
+          >
+            暂停
+          </CustomButton>,
+          <CustomButton
+            key="complete"
+            variant="success"
+            size="small"
+            icon={<CheckCircleOutlined />}
+            onClick={() => onComplete?.(task)}
+          >
+            完成
+          </CustomButton>
+        );
+        break;
+      case 'paused':
+        buttons.push(
+          <CustomButton
+            key="continue"
+            variant="primary"
+            size="small"
+            icon={<PlayCircleOutlined />}
+            onClick={() => onStart?.(task)}
+          >
+            继续
+          </CustomButton>
+        );
+        break;
+      default:
+        break;
+    }
+
+    // 如果任务已完成或取消，添加重新开始按钮
+    if (task.status === 'completed' || task.status === 'cancelled') {
+      buttons.push(
+        <CustomButton
+          key="restart"
+          variant="secondary"
+          size="small"
+          icon={<PlayCircleOutlined />}
+          onClick={() => onStart?.(task)}
+        >
+          重新开始
+        </CustomButton>
+      );
+    }
+
+    // 始终添加编辑按钮
+    buttons.push(
+      <CustomButton
+        key="edit"
+        variant="secondary"
+        size="small"
+        onClick={() => onEdit?.(task)}
+      >
+        编辑
+      </CustomButton>
+    );
+
+    return <Space size="small">{buttons}</Space>;
+  };
+
+  const getDropdownItems = () => [
+    {
+      key: 'duplicate',
+      label: '复制任务',
+      onClick: () => {
+        // 复制任务功能
+        const duplicatedTask = {
+          ...task,
+          id: Date.now(), // 临时ID
+          title: `${task.title} (副本)`,
+          status: 'pending' as TaskStatus,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        // 这里可以调用API创建任务副本
+        console.log('复制任务:', duplicatedTask);
+      },
+    },
+    {
+      key: 'divider',
+      type: 'divider',
+    },
+    {
+      key: 'delete',
+      label: '删除任务',
+      danger: true,
+      onClick: () => setShowDeleteModal(true),
+    },
+  ];
+
+  return (
+    <>
+      <CustomCard
+        className="task-card"
+        hoverable={task.status === 'pending'}
+        variant={task.status === 'completed' ? 'outlined' : 'default'}
+      >
+        <CardContent>
+          <div className="task-card-header">
+            <div className="task-card-title-section">
+              <div className="task-card-title">
+                {getStatusIcon(task.status)}
+                <span className={task.status === 'completed' ? 'completed-title' : ''}>
+                  {task.title}
+                </span>
+              </div>
+              <div className="task-card-meta">
+                <Tag color={getPriorityColor(task.priority)}>
+                  {task.priority === 'high' ? '高' : task.priority === 'medium' ? '中' : '低'}优先级
+                </Tag>
+                <span className="task-status">{getStatusText(task.status)}</span>
+              </div>
+            </div>
+            <Dropdown
+              menu={{ items: getDropdownItems() }}
+              trigger={['click']}
+              placement="bottomRight"
+            >
+              <CustomButton
+                variant="text"
+                size="small"
+                icon={<MoreOutlined />}
+                className="task-card-menu"
+              />
+            </Dropdown>
+          </div>
+
+          {task.description && (
+            <div className="task-card-description">
+              {task.description}
+            </div>
+          )}
+
+          <div className="task-card-info">
+            <div className="task-duration">
+              <ClockCircleOutlined />
+              <span>预计: {formatDuration(task.estimatedDuration)}</span>
+              {task.actualDuration > 0 && (
+                <span className="actual-duration">
+                  / 实际: {formatDuration(task.actualDuration)}
+                </span>
+              )}
+            </div>
+
+            {task.dueDate && (
+              <div className={`task-due-date ${isOverdue ? 'overdue' : ''}`}>
+                <ClockCircleOutlined />
+                <span>
+                  {isOverdue && <ExclamationCircleOutlined style={{ color: '#ff4d4f', marginRight: 4 }} />}
+                  截止: {dayjs(task.dueDate).format('MM-DD HH:mm')}
+                  <span className="relative-time">({dayjs(task.dueDate).fromNow()})</span>
+                </span>
+              </div>
+            )}
+          </div>
+
+          {task.tags && (
+            <div className="task-tags">
+              {(Array.isArray(task.tags) ? task.tags : []).map((tag, index) => (
+                <Tag key={index}>
+                  {tag.trim()}
+                </Tag>
+              ))}
+            </div>
+          )}
+
+          <div className="task-card-footer">
+            {getActionButtons()}
+          </div>
+        </CardContent>
+      </CustomCard>
+
+      <Modal
+        title="确认删除"
+        open={showDeleteModal}
+        onOk={() => {
+          onDelete?.(task);
+          setShowDeleteModal(false);
+        }}
+        onCancel={() => setShowDeleteModal(false)}
+        okText="删除"
+        cancelText="取消"
+        okButtonProps={{ danger: true }}
+      >
+        <p>确定要删除任务 "{task.title}" 吗？此操作不可恢复。</p>
+      </Modal>
+    </>
+  );
+};
+
+export default TaskCard;

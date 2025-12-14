@@ -1,0 +1,104 @@
+.custom-card {
+  background-color: #ffffff;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+/* 样式变体 */
+.custom-card-default {
+  border: 1px solid #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.custom-card-outlined {
+  border: 1px solid #d9d9d9;
+  box-shadow: none;
+}
+
+.custom-card-shadowed {
+  border: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* 悬停效果 */
+.custom-card-hoverable:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+
+/* 内边距变体 */
+.custom-card-padding-small {
+  padding: 12px;
+}
+
+.custom-card-padding-medium {
+  padding: 16px;
+}
+
+.custom-card-padding-large {
+  padding: 24px;
+}
+
+/* 头部样式 */
+.custom-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.custom-card-header-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(0, 0, 0, 0.88);
+  margin: 0;
+}
+
+.custom-card-header-extra {
+  color: rgba(0, 0, 0, 0.65);
+}
+
+/* 内容样式 */
+.custom-card-content {
+  color: rgba(0, 0, 0, 0.88);
+  line-height: 1.6;
+}
+
+/* 底部样式 */
+.custom-card-footer {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+  color: rgba(0, 0, 0, 0.65);
+  font-size: 14px;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .custom-card-padding-large {
+    padding: 16px;
+  }
+
+  .custom-card-padding-medium {
+    padding: 12px;
+  }
+
+  .custom-card-padding-small {
+    padding: 8px;
+  }
+
+  .custom-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .custom-card-header-extra {
+    align-self: flex-end;
+  }
+}

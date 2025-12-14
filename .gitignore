@@ -1,0 +1,81 @@
+# 编译输出
+/target
+/dist
+/dist-electron
+
+# 避免被添加到Git的大文件和目录
+frontend/dist-electron/
+frontend/dist-electron/*
+
+# 日志文件
+/logs
+*.log
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 依赖目录
+node_modules/
+.pnpmp
+.yarn/cache/
+
+# 环境变量文件
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 数据库文件
+*.db
+*.sqlite
+*.sqlite3
+*.sql
+
+# 临时文件
+*.tmp
+*.temp
+
+# 打包文件
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# 配置文件（保留示例文件）
+application-*.properties
+application-*.yml
+!application.yml.example
+!application-dev.yml.example
+!application-test.yml.example
+!application-prod.yml.example
+
+# 备份文件
+*.bak
+*.backup
+
+# 证书文件
+*.p12
+*.pfx
+*.key
+*.crt
+*.pem
+
+# 覆盖文件
+*.orig
+*.merge
+
+# 前端资源
+frontend/public/icon.ico
+frontend/public/icon.png
+frontend/public/icon.icns

@@ -1,0 +1,147 @@
+/* Dashboard页面样式 */
+
+.dashboard {
+  padding: 24px;
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* 页面标题区域 */
+.dashboard-header {
+  margin-bottom: 24px;
+  padding: 20px 24px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+/* 任务区域 */
+.dashboard-tasks-section {
+  margin-bottom: 24px;
+}
+
+.dashboard-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 0;
+}
+
+.dashboard-section-header .ant-typography {
+  color: #262626;
+  font-weight: 600;
+}
+
+/* 任务卡片容器 */
+.dashboard-tasks-section .ant-row {
+  margin-left: -8px !important;
+  margin-right: -8px !important;
+}
+
+.dashboard-tasks-section .ant-col {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+/* 任务卡片在Dashboard中的特殊样式 */
+.dashboard-tasks-section .task-card {
+  margin-bottom: 16px;
+}
+
+/* 概览卡片 */
+.dashboard-overview-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+}
+
+.dashboard-overview-card .ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.dashboard-overview-card .ant-statistic-title {
+  color: #8c8c8c;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.dashboard-overview-card .ant-statistic-content {
+  color: #262626;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+/* 统计卡片 */
+.dashboard-stats-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+  min-height: 300px;
+}
+
+/* 快速操作卡片 */
+.dashboard-actions-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-radius: 8px;
+}
+
+.dashboard-actions-card .ant-card-body {
+  padding: 16px 24px;
+}
+
+/* 响应式设计 */
+@media (max-width: 1200px) {
+  .dashboard-tasks-section .ant-col[xl="8"] {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 16px;
+  }
+
+  .dashboard-header {
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+
+  .dashboard-section-header {
+    padding: 12px 0;
+  }
+
+  .dashboard-section-header .ant-typography {
+    font-size: 18px;
+  }
+
+  .dashboard-tasks-section .ant-col[lg="12"] {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .dashboard-overview-card .ant-statistic-content {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 576px) {
+  .dashboard {
+    padding: 12px;
+  }
+
+  .dashboard-header {
+    padding: 12px;
+  }
+
+  .dashboard-tasks-section .ant-col[sm="12"] {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .dashboard-overview-card .ant-statistic-content {
+    font-size: 16px;
+  }
+
+  .dashboard-overview-card .ant-statistic-title {
+    font-size: 11px;
+  }
+}

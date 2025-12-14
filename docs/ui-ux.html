@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>番茄闹钟 - UI/UX 原型设计</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* Material Design 全局样式 */
+        :root {
+            /* Material Design 配色系统 */
+            --md-primary: #FF6D00;      /* 主色 - 番茄橙 */
+            --md-primary-light: #FF9E40;
+            --md-primary-dark: #C43E00;
+            --md-secondary: #00BFA5;    /* 辅色 - 青绿 */
+            --md-secondary-light: #5DF2E6;
+            --md-secondary-dark: #008E7F;
+
+            /* 语义化颜色 */
+            --md-surface: #FFFFFF;
+            --md-background: #FAFAFA;
+            --md-error: #B00020;
+            --md-success: #4CAF50;
+            --md-warning: #FFC107;
+            --md-info: #2196F3;
+
+            /* 文字颜色 */
+            --md-on-primary: #FFFFFF;
+            --md-on-secondary: #FFFFFF;
+            --md-on-surface: #212121;
+            --md-on-background: #212121;
+
+            /* 阴影 */
+            --md-elevation-1: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --md-elevation-2: 0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23);
+            --md-elevation-4: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+            --md-elevation-8: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+
+            /* 圆角 */
+            --md-border-radius: 4px;
+            --md-border-radius-large: 8px;
+
+            /* 间距 */
+            --md-spacing-xs: 4px;
+            --md-spacing-sm: 8px;
+            --md-spacing-md: 16px;
+            --md-spacing-lg: 24px;
+            --md-spacing-xl: 32px;
+
+            /* 过渡动画 */
+            --md-transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            --md-transition-normal: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --md-transition-slow: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--md-background);
+            color: var(--md-on-background);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* 主容器 - 模拟移动端应用 */
+        .app-container {
+            max-width: 414px;
+            margin: 20px auto;
+            background-color: var(--md-surface);
+            border-radius: var(--md-border-radius-large);
+            box-shadow: var(--md-elevation-8);
+            overflow: hidden;
+            position: relative;
+            min-height: 896px;
+        }
+
+        /* 顶部应用栏 - AppBar */
+        .app-bar {
+            background-color: var(--md-primary);
+            color: var(--md-on-primary);
+            padding: var(--md-spacing-md);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--md-elevation-2);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .app-bar-title {
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .app-bar-actions {
+            display: flex;
+            gap: var(--md-spacing-md);
+        }
+
+        /* 底部导航栏 - Bottom Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: var(--md-surface);
+            display: flex;
+            justify-content: space-around;
+            padding: var(--md-spacing-sm) 0;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: var(--md-spacing-xs);
+            cursor: pointer;
+            transition: all var(--md-transition-fast);
+            min-width: 64px;
+        }
+
+        .bottom-nav-item.active {
+            color: var(--md-primary);
+        }
+
+        .bottom-nav-item .material-icons {
+            font-size: 24px;
+            margin-bottom: var(--md-spacing-xs);
+        }
+
+        .bottom-nav-item span {
+            font-size: 12px;
+        }
+
+        /* 浮动操作按钮 - FAB */
+        .fab {
+            position: fixed;
+            bottom: 80px;
+            right: calc(50% - 207px + 16px);
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background-color: var(--md-secondary);
+            color: var(--md-on-secondary);
+            border: none;
+            box-shadow: var(--md-elevation-4);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--md-transition-normal);
+            z-index: 90;
+        }
+
+        .fab:hover {
+            transform: scale(1.05);
+            box-shadow: var(--md-elevation-8);
+        }
+
+        /* 卡片组件 */
+        .card {
+            background-color: var(--md-surface);
+            border-radius: var(--md-border-radius);
+            box-shadow: var(--md-elevation-1);
+            margin: var(--md-spacing-md);
+            padding: var(--md-spacing-md);
+            transition: all var(--md-transition-normal);
+        }
+
+        .card:hover {
+            box-shadow: var(--md-elevation-2);
+        }
+
+        /* 任务列表页面 */
+        .task-list-page {
+            display: block;
+            padding-bottom: 80px;
+        }
+
+        /* 统计卡片 */
+        .stats-card {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--md-spacing-md);
+            margin: var(--md-spacing-md);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: var(--md-spacing-md);
+            background: linear-gradient(135deg, var(--md-primary-light), var(--md-primary));
+            color: var(--md-on-primary);
+            border-radius: var(--md-border-radius);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        /* 任务项 */
+        .task-item {
+            background-color: var(--md-surface);
+            margin: var(--md-spacing-sm) var(--md-spacing-md);
+            padding: var(--md-spacing-md);
+            border-radius: var(--md-border-radius);
+            box-shadow: var(--md-elevation-1);
+            display: flex;
+            align-items: center;
+            gap: var(--md-spacing-md);
+            transition: all var(--md-transition-fast);
+        }
+
+        .task-item:hover {
+            transform: translateX(4px);
+            box-shadow: var(--md-elevation-2);
+        }
+
+        .task-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--md-primary);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all var(--md-transition-fast);
+            position: relative;
+        }
+
+        .task-checkbox.checked {
+            background-color: var(--md-primary);
+        }
+
+        .task-checkbox.checked::after {
+            content: '✓';
+            color: var(--md-on-primary);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 500;
+            margin-bottom: var(--md-spacing-xs);
+        }
+
+        .task-meta {
+            display: flex;
+            gap: var(--md-spacing-md);
+            font-size: 12px;
+            color: #666;
+        }
+
+        .task-priority {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 500;
+        }
+
+        .priority-high {
+            background-color: var(--md-error);
+            color: white;
+        }
+
+        .priority-medium {
+            background-color: var(--md-warning);
+            color: black;
+        }
+
+        .priority-low {
+            background-color: var(--md-success);
+            color: white;
+        }
+
+        /* 计时器页面 */
+        .timer-page {
+            display: none;
+            text-align: center;
+            padding: var(--md-spacing-xl);
+            padding-bottom: 100px;
+        }
+
+        .timer-display {
+            margin: var(--md-spacing-xl) 0;
+        }
+
+        .timer-circle {
+            width: 280px;
+            height: 280px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .timer-circle svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .timer-circle-bg {
+            fill: none;
+            stroke: #E0E0E0;
+            stroke-width: 8;
+        }
+
+        .timer-circle-progress {
+            fill: none;
+            stroke: var(--md-primary);
+            stroke-width: 8;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .timer-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .timer-time {
+            font-size: 48px;
+            font-weight: 300;
+            color: var(--md-primary);
+        }
+
+        .timer-task {
+            font-size: 16px;
+            color: #666;
+            margin-top: var(--md-spacing-sm);
+        }
+
+        .timer-controls {
+            display: flex;
+            justify-content: center;
+            gap: var(--md-spacing-lg);
+            margin-top: var(--md-spacing-xl);
+        }
+
+        .timer-btn {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--md-transition-normal);
+            box-shadow: var(--md-elevation-2);
+        }
+
+        .timer-btn.primary {
+            background-color: var(--md-primary);
+            color: var(--md-on-primary);
+        }
+
+        .timer-btn.secondary {
+            background-color: var(--md-secondary);
+            color: var(--md-on-secondary);
+        }
+
+        .timer-btn:hover {
+            transform: scale(1.1);
+            box-shadow: var(--md-elevation-4);
+        }
+
+        /* 统计页面 */
+        .stats-page {
+            display: none;
+            padding: var(--md-spacing-md);
+            padding-bottom: 100px;
+        }
+
+        .chart-card {
+            background-color: var(--md-surface);
+            border-radius: var(--md-border-radius);
+            box-shadow: var(--md-elevation-1);
+            padding: var(--md-spacing-md);
+            margin-bottom: var(--md-spacing-md);
+        }
+
+        .chart-title {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: var(--md-spacing-md);
+        }
+
+        .chart-container {
+            height: 200px;
+            background: linear-gradient(135deg, #f5f5f5 25%, transparent 25%) - 50px 0,
+                        linear-gradient(225deg, #f5f5f5 25%, transparent 25%) - 50px 0,
+                        linear-gradient(315deg, #f5f5f5 25%, transparent 25%),
+                        linear-gradient(45deg, #f5f5f5 25%, transparent 25%);
+            background-size: 100px 100px;
+            background-color: white;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: var(--md-spacing-md);
+        }
+
+        .bar {
+            width: 30px;
+            background: linear-gradient(to top, var(--md-primary), var(--md-primary-light));
+            border-radius: 4px 4px 0 0;
+            transition: height var(--md-transition-slow);
+        }
+
+        /* 设置页面 */
+        .settings-page {
+            display: none;
+            padding: var(--md-spacing-md);
+            padding-bottom: 100px;
+        }
+
+        .settings-group {
+            margin-bottom: var(--md-spacing-lg);
+        }
+
+        .settings-group-title {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: var(--md-spacing-sm);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .settings-item {
+            background-color: var(--md-surface);
+            padding: var(--md-spacing-md);
+            border-radius: var(--md-border-radius);
+            box-shadow: var(--md-elevation-1);
+            margin-bottom: var(--md-spacing-xs);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: var(--md-transition-fast);
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: var(--md-transition-fast);
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--md-primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+
+        /* 响应式设计 */
+        @media (min-width: 768px) {
+            .app-container {
+                margin: 40px auto;
+                border-radius: 16px;
+            }
+        }
+
+        /* 动画效果 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn var(--md-transition-normal) ease-out;
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0,0,0,.1);
+            border-radius: 50%;
+            border-top-color: var(--md-primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- 顶部应用栏 -->
+        <header class="app-bar">
+            <span class="material-icons">menu</span>
+            <h1 class="app-bar-title">番茄闹钟</h1>
+            <div class="app-bar-actions">
+                <span class="material-icons">search</span>
+                <span class="material-icons">notifications</span>
+            </div>
+        </header>
+
+        <!-- 任务列表页面 -->
+        <div class="task-list-page" id="taskListPage">
+            <!-- 统计卡片 -->
+            <div class="stats-card">
+                <div class="stat-item">
+                    <div class="stat-number">5</div>
+                    <div class="stat-label">待完成</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">2h30m</div>
+                    <div class="stat-label">今日专注</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">60%</div>
+                    <div class="stat-label">完成率</div>
+                </div>
+            </div>
+
+            <!-- 任务列表 -->
+            <div class="task-item fade-in">
+                <div class="task-checkbox"></div>
+                <div class="task-content">
+                    <div class="task-title">完成项目提案报告</div>
+                    <div class="task-meta">
+                        <span>预计 25分钟</span>
+                        <span class="task-priority priority-high">高</span>
+                        <span>工作</span>
+                    </div>
+                </div>
+                <span class="material-icons">more_vert</span>
+            </div>
+
+            <div class="task-item fade-in">
+                <div class="task-checkbox checked"></div>
+                <div class="task-content">
+                    <div class="task-title">代码审查</div>
+                    <div class="task-meta">
+                        <span>已完成 15分钟</span>
+                        <span class="task-priority priority-medium">中</span>
+                        <span>工作</span>
+                    </div>
+                </div>
+                <span class="material-icons">more_vert</span>
+            </div>
+
+            <div class="task-item fade-in">
+                <div class="task-checkbox"></div>
+                <div class="task-content">
+                    <div class="task-title">准备下周一的演示文稿</div>
+                    <div class="task-meta">
+                        <span>预计 45分钟</span>
+                        <span class="task-priority priority-medium">中</span>
+                        <span>明天</span>
+                    </div>
+                </div>
+                <span class="material-icons">more_vert</span>
+            </div>
+
+            <div class="task-item fade-in">
+                <div class="task-checkbox"></div>
+                <div class="task-content">
+                    <div class="task-title">学习React新特性</div>
+                    <div class="task-meta">
+                        <span>预计 30分钟</span>
+                        <span class="task-priority priority-low">低</span>
+                        <span>学习</span>
+                    </div>
+                </div>
+                <span class="material-icons">more_vert</span>
+            </div>
+        </div>
+
+        <!-- 计时器页面 -->
+        <div class="timer-page" id="timerPage">
+            <div class="timer-display">
+                <div class="timer-circle">
+                    <svg>
+                        <circle class="timer-circle-bg" cx="140" cy="140" r="130"></circle>
+                        <circle class="timer-circle-progress" cx="140" cy="140" r="130"
+                                stroke-dasharray="816.81" stroke-dashoffset="204.20"></circle>
+                    </svg>
+                    <div class="timer-text">
+                        <div class="timer-time">24:35</div>
+                        <div class="timer-task">完成项目提案报告</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="timer-controls">
+                <button class="timer-btn secondary">
+                    <span class="material-icons">stop</span>
+                </button>
+                <button class="timer-btn primary">
+                    <span class="material-icons">pause</span>
+                </button>
+                <button class="timer-btn secondary">
+                    <span class="material-icons">skip_next</span>
+                </button>
+            </div>
+
+            <div class="card">
+                <h3>快速笔记</h3>
+                <div style="margin-top: var(--md-spacing-md); padding: var(--md-spacing-sm); background: #f5f5f5; border-radius: var(--md-border-radius); min-height: 80px;">
+                    记录灵感...
+                </div>
+            </div>
+        </div>
+
+        <!-- 统计页面 -->
+        <div class="stats-page" id="statsPage">
+            <div class="chart-card">
+                <h3 class="chart-title">本周专注时长</h3>
+                <div class="chart-container">
+                    <div class="bar" style="height: 60%;"></div>
+                    <div class="bar" style="height: 80%;"></div>
+                    <div class="bar" style="height: 45%;"></div>
+                    <div class="bar" style="height: 90%;"></div>
+                    <div class="bar" style="height: 70%;"></div>
+                    <div class="bar" style="height: 85%;"></div>
+                    <div class="bar" style="height: 40%;"></div>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3 class="chart-title">任务分类统计</h3>
+                <div style="display: flex; justify-content: space-around; margin-top: var(--md-spacing-md);">
+                    <div style="text-align: center;">
+                        <div style="width: 80px; height: 80px; border-radius: 50%; background: conic-gradient(var(--md-primary) 0% 60%, #E0E0E0 60% 100%);"></div>
+                        <div style="margin-top: var(--md-spacing-sm); font-size: 14px;">工作 60%</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="width: 80px; height: 80px; border-radius: 50%; background: conic-gradient(var(--md-secondary) 0% 30%, #E0E0E0 30% 100%);"></div>
+                        <div style="margin-top: var(--md-spacing-sm); font-size: 14px;">学习 30%</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="width: 80px; height: 80px; border-radius: 50%; background: conic-gradient(var(--md-success) 0% 10%, #E0E0E0 10% 100%);"></div>
+                        <div style="margin-top: var(--md-spacing-sm); font-size: 14px;">生活 10%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 设置页面 -->
+        <div class="settings-page" id="settingsPage">
+            <div class="settings-group">
+                <div class="settings-group-title">番茄钟设置</div>
+                <div class="settings-item">
+                    <span>工作时长</span>
+                    <span>25 分钟</span>
+                </div>
+                <div class="settings-item">
+                    <span>短休息时长</span>
+                    <span>5 分钟</span>
+                </div>
+                <div class="settings-item">
+                    <span>长休息时长</span>
+                    <span>15 分钟</span>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="settings-group-title">通知设置</div>
+                <div class="settings-item">
+                    <span>启用通知</span>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="settings-item">
+                    <span>声音提醒</span>
+                    <label class="switch">
+                        <input type="checkbox" checked>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="settings-item">
+                    <span>桌面通知</span>
+                    <label class="switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="settings-group-title">界面设置</div>
+                <div class="settings-item">
+                    <span>深色模式</span>
+                    <label class="switch">
+                        <input type="checkbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="settings-item">
+                    <span>主题颜色</span>
+                    <span style="color: var(--md-primary);">番茄橙</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 浮动操作按钮 -->
+        <button class="fab">
+            <span class="material-icons">add</span>
+        </button>
+
+        <!-- 底部导航栏 -->
+        <nav class="bottom-nav">
+            <div class="bottom-nav-item active" onclick="switchPage('taskList')">
+                <span class="material-icons">assignment</span>
+                <span>任务</span>
+            </div>
+            <div class="bottom-nav-item" onclick="switchPage('timer')">
+                <span class="material-icons">timer</span>
+                <span>专注</span>
+            </div>
+            <div class="bottom-nav-item" onclick="switchPage('stats')">
+                <span class="material-icons">insert_chart</span>
+                <span>统计</span>
+            </div>
+            <div class="bottom-nav-item" onclick="switchPage('settings')">
+                <span class="material-icons">settings</span>
+                <span>设置</span>
+            </div>
+        </nav>
+    </div>
+
+    <script>
+        // 页面切换功能
+        function switchPage(pageName) {
+            // 隐藏所有页面
+            document.querySelectorAll('.task-list-page, .timer-page, .stats-page, .settings-page').forEach(page => {
+                page.style.display = 'none';
+            });
+
+            // 移除所有导航项的active类
+            document.querySelectorAll('.bottom-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // 显示选中的页面
+            switch(pageName) {
+                case 'taskList':
+                    document.getElementById('taskListPage').style.display = 'block';
+                    document.querySelectorAll('.bottom-nav-item')[0].classList.add('active');
+                    break;
+                case 'timer':
+                    document.getElementById('timerPage').style.display = 'block';
+                    document.querySelectorAll('.bottom-nav-item')[1].classList.add('active');
+                    // 添加计时器动画
+                    startTimerAnimation();
+                    break;
+                case 'stats':
+                    document.getElementById('statsPage').style.display = 'block';
+                    document.querySelectorAll('.bottom-nav-item')[2].classList.add('active');
+                    break;
+                case 'settings':
+                    document.getElementById('settingsPage').style.display = 'block';
+                    document.querySelectorAll('.bottom-nav-item')[3].classList.add('active');
+                    break;
+            }
+        }
+
+        // 计时器动画
+        let timerInterval;
+        function startTimerAnimation() {
+            let seconds = 24 * 60 + 35; // 24:35
+            const totalSeconds = 25 * 60; // 25分钟
+            const circle = document.querySelector('.timer-circle-progress');
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (seconds > 0) {
+                    seconds--;
+                    const minutes = Math.floor(seconds / 60);
+                    const secs = seconds % 60;
+                    document.querySelector('.timer-time').textContent =
+                        `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+                    // 更新进度环
+                    const progress = (totalSeconds - seconds) / totalSeconds;
+                    const offset = 816.81 * (1 - progress);
+                    circle.style.strokeDashoffset = offset;
+                } else {
+                    clearInterval(timerInterval);
+                }
+            }, 1000);
+        }
+
+        // 任务复选框点击事件
+        document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('click', function() {
+                this.classList.toggle('checked');
+                // 添加点击反馈动画
+                this.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 200);
+            });
+        });
+
+        // FAB点击事件
+        document.querySelector('.fab').addEventListener('click', function() {
+            // 添加点击动画
+            this.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                this.style.transform = 'scale(1)';
+                // 这里可以打开新建任务对话框
+                alert('打开新建任务界面');
+            }, 200);
+        });
+
+        // 添加Material Design涟漪效果
+        document.querySelectorAll('button, .bottom-nav-item, .task-item').forEach(element => {
+            element.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+
+                ripple.style.width = ripple.style.height = size + 'px';
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                ripple.classList.add('ripple');
+
+                this.appendChild(ripple);
+
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+
+        // 添加涟漪效果样式
+        const style = document.createElement('style');
+        style.textContent = `
+            button, .bottom-nav-item, .task-item {
+                position: relative;
+                overflow: hidden;
+            }
+            .ripple {
+                position: absolute;
+                border-radius: 50%;
+                background-color: rgba(255, 255, 255, 0.5);
+                transform: scale(0);
+                animation: ripple-animation 0.6s ease-out;
+            }
+            @keyframes ripple-animation {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html>

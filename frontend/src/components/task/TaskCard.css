@@ -1,0 +1,397 @@
+
+/* 任务卡片主容器 - 简洁实用的设计 */
+.task-card.custom-card {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  border: 1px solid #e8e8e8;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  height: 280px; /* 固定高度，确保所有卡片一致 */
+  display: flex;
+  flex-direction: column;
+}
+
+.task-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border-color: #d9d9d9;
+}
+
+/* 优先级边框样式 */
+.task-card[data-priority="high"] {
+  border-left: 4px solid #ff4d4f;
+}
+
+.task-card[data-priority="medium"] {
+  border-left: 4px solid #faad14;
+}
+
+.task-card[data-priority="low"] {
+  border-left: 4px solid #52c41a;
+}
+
+/* 任务状态样式 */
+.task-card[data-status="completed"] {
+  opacity: 0.7;
+  background: #fafafa;
+}
+
+.task-card[data-status="cancelled"] {
+  opacity: 0.6;
+  background: #f5f5f5;
+}
+
+/* 内容区域 - 使用 flex 确保高度一致 */
+.task-card .card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+/* 头部区域 */
+.task-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.task-card-title-section {
+  flex: 1;
+  margin-right: 8px;
+  min-width: 0;
+}
+
+.task-card-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #262626;
+  line-height: 1.4;
+  margin-bottom: 6px;
+  word-break: break-word;
+}
+
+.task-card-title .completed-title {
+  text-decoration: line-through;
+  color: #8c8c8c;
+}
+
+.task-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.task-status {
+  font-size: 11px;
+  color: #595959;
+  font-weight: 500;
+  background: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.task-card-menu {
+  padding: 4px;
+  border-radius: 4px;
+  opacity: 0.6;
+  transition: all 0.2s ease;
+  color: #8c8c8c;
+}
+
+.task-card-menu:hover {
+  opacity: 1;
+  background: #f0f0f0;
+}
+
+/* 描述区域 - 限制高度确保一致性 */
+.task-card-description {
+  color: #595959;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  font-size: 13px;
+  padding: 8px;
+  background: #fafafa;
+  border-radius: 6px;
+  border-left: 2px solid #e8e8e8;
+  word-break: break-word;
+
+  /* 限制描述区域高度，超出显示省略号 */
+  max-height: 66px; /* 稍微增加高度以适应3行文本 */
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+
+  /* 如果没有描述，隐藏这个元素以避免占用空间 */
+  &:empty,
+  &:not(:empty):not(:blank) {
+    display: -webkit-box;
+  }
+}
+
+/* 确保即使没有某些可选元素，卡片高度仍然一致 */
+.task-card:not(:has(.task-card-description:not(:empty))) .task-card-info {
+  margin-top: auto;
+}
+
+.task-card:not(:has(.task-tags)) .task-card-info {
+  margin-bottom: 12px;
+}
+
+/* 信息区域 */
+.task-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.task-duration,
+.task-due-date {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #f8f8f8;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.task-duration:hover,
+.task-due-date:hover {
+  background: #f0f0f0;
+}
+
+.task-duration .anticon,
+.task-due-date .anticon {
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+.actual-duration {
+  color: #8c8c8c;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.task-due-date.overdue {
+  color: #ff4d4f;
+  font-weight: 500;
+  background: #fff2f0;
+  border: 1px solid #ffccc7;
+}
+
+.task-due-date.overdue .anticon {
+  color: #ff4d4f;
+}
+
+.relative-time {
+  font-size: 11px;
+  color: #8c8c8c;
+  margin-left: 4px;
+  font-weight: 400;
+}
+
+/* 标签区域 */
+.task-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.task-tags .ant-tag {
+  margin: 0;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #d9d9d9;
+  background: #fafafa;
+  color: #595959;
+  font-weight: 400;
+}
+
+/* 底部按钮区域 */
+.task-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+  gap: 6px;
+  margin-top: auto; /* 确保按钮区域始终在底部 */
+}
+
+.task-card-footer .ant-space {
+  flex: 1;
+  justify-content: flex-end;
+}
+
+/* 按钮样式优化 - 小尺寸 */
+.task-card-footer .ant-btn {
+  min-width: 60px;
+  height: 32px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  border: 1px solid #d9d9d9;
+  background: #ffffff;
+  color: #595959;
+}
+
+.task-card-footer .ant-btn:hover {
+  background: #f0f0f0;
+  border-color: #bfbfbf;
+  color: #262626;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.task-card-footer .ant-btn:active {
+  transform: translateY(0);
+}
+
+/* 主要操作按钮 - 开始/继续 */
+.task-card-footer .ant-btn-primary {
+  background: #1890ff;
+  border-color: #1890ff;
+  color: #ffffff;
+}
+
+.task-card-footer .ant-btn-primary:hover {
+  background: #40a9ff;
+  border-color: #40a9ff;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.2);
+}
+
+/* 成功按钮 - 完成 */
+.task-card-footer .ant-btn[style*="background: #52c41a"],
+.task-card-footer .ant-btn.custom-button-success {
+  background: #52c41a !important;
+  border-color: #52c41a !important;
+  color: #ffffff !important;
+}
+
+.task-card-footer .ant-btn[style*="background: #52c41a"]:hover,
+.task-card-footer .ant-btn.custom-button-success:hover {
+  background: #73d13d !important;
+  border-color: #73d13d !important;
+  box-shadow: 0 2px 8px rgba(82, 196, 26, 0.2) !important;
+}
+
+/* 警告按钮 - 暂停 */
+.task-card-footer .ant-btn[style*="background: #faad14"],
+.task-card-footer .ant-btn.custom-button-warning {
+  background: #faad14 !important;
+  border-color: #faad14 !important;
+  color: #ffffff !important;
+}
+
+.task-card-footer .ant-btn[style*="background: #faad14"]:hover,
+.task-card-footer .ant-btn.custom-button-warning:hover {
+  background: #ffc53d !important;
+  border-color: #ffc53d !important;
+  box-shadow: 0 2px 8px rgba(250, 173, 20, 0.2) !important;
+}
+
+/* 次要按钮 - 编辑 */
+.task-card-footer .ant-btn-default {
+  background: #ffffff;
+  color: #595959;
+  border: 1px solid #d9d9d9;
+}
+
+.task-card-footer .ant-btn-default:hover {
+  background: #f0f0f0;
+  color: #262626;
+  border-color: #bfbfbf;
+}
+
+/* 按钮间距优化 */
+.task-card-footer .ant-space-item {
+  margin-left: 0 !important;
+}
+
+.task-card-footer .ant-space .ant-space-item {
+  margin-left: 4px !important;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .task-card {
+    border-radius: 8px;
+    margin-bottom: 12px;
+    height: 250px; /* 移动端稍微减小高度 */
+  }
+
+  .task-card .card-content {
+    padding: 12px;
+  }
+
+  .task-card-header {
+    margin-bottom: 8px;
+  }
+
+  .task-card-title-section {
+    margin-right: 0;
+  }
+
+  .task-card-title {
+    font-size: 14px;
+  }
+
+  .task-card-description {
+    font-size: 12px;
+    padding: 6px;
+    max-height: 48px;
+    -webkit-line-clamp: 2;
+  }
+
+  .task-card-info {
+    font-size: 11px;
+  }
+
+  .task-card-footer {
+    padding-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  .task-card-footer .ant-btn {
+    min-width: 50px;
+    height: 28px;
+    font-size: 11px;
+  }
+}
+
+@media (max-width: 480px) {
+  .task-card .card-content {
+    padding: 10px;
+  }
+
+  .task-card-title {
+    font-size: 13px;
+  }
+
+  .task-card-footer .ant-btn {
+    min-width: 45px;
+    height: 26px;
+    font-size: 10px;
+  }
+
+  .task-tags .ant-tag {
+    font-size: 9px;
+    padding: 1px 4px;
+  }
+}
+

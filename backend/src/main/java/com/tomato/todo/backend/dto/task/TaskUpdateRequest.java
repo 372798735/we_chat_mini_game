@@ -1,0 +1,56 @@
+package com.tomato.todo.backend.dto.task;
+
+import com.tomato.todo.backend.entity.Task;
+import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import jakarta.validation.constraints.*;
+import java.time.LocalDateTime;
+
+/**
+ * 任务更新请求DTO
+ *
+ * @author Tomato Todo Team
+ * @version 1.0.0
+ */
+@Data
+public class TaskUpdateRequest {
+
+    @Size(max = 100, message = "任务标题长度不能超过100个字符")
+    private String title;
+
+    @Size(max = 500, message = "任务描述长度不能超过500个字符")
+    private String description;
+
+    @Min(value = 1, message = "预计时长至少1分钟")
+    @Max(value = 480, message = "预计时长不能超过480分钟")
+    private Integer estimatedDuration;
+
+    private Integer actualDuration;
+
+    private Long categoryId;
+
+    private Task.Priority priority;
+
+    private Task.TaskStatus status;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime dueDate;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime reminderTime;
+
+    @Size(max = 255, message = "标签长度不能超过255个字符")
+    private String tags;
+
+    private Integer sortOrder;
+
+    private Long parentTaskId;
+
+    private Boolean isRecurring;
+
+    @Size(max = 100, message = "循环规则长度不能超过100个字符")
+    private String recurrenceRule;
+
+    private Double completionRate;
+}

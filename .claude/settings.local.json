@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" -version)",
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" clean package -DskipTests)",
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" clean package -DskipTests=true)",
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" clean compile exec:java -Dexec.mainClass=\"com.tomato.todo.backend.TodoApplication\" -Dexec.args=\"--spring.flyway.clean-disabled=false --spring.flyway.clean=true\" -Dmaven.test.skip=true)",
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" compile exec:java -Dexec.mainClass=\"com.tomato.todo.backend.TodoApplication\" -Dexec.args=\"--server.port=8081\" -Dmaven.test.skip=true)",
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" compile exec:java -Dexec.mainClass=\"com.tomato.todo.backend.TodoApplication\" -Dexec.args=\"--server.port=8082\" -Dmaven.test.skip=true)",
+      "Bash(del:*)",
+      "Bash(ren:*)",
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" compile exec:java -Dexec.mainClass=\"com.tomato.todo.backend.TodoApplication\" -Dexec.args=\"--server.port=8083\" -Dmaven.test.skip=true)",
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" compile exec:java -Dexec.mainClass=\"com.tomato.todo.backend.TodoApplication\" -Dexec.args=\"--server.port=8084\" -Dmaven.test.skip=true)",
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" compile exec:java -Dexec.mainClass=\"com.tomato.todo.backend.TodoApplication\" -Dexec.args=\"--server.port=8085\" -Dmaven.test.skip=true)",
+      "Bash(powershell:*)",
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" compile exec:java -Dexec.mainClass=\"com.tomato.todo.backend.TodoApplication\" -Dexec.args=\"--server.port=8086\" -Dmaven.test.skip=true)",
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" compile exec:java -Dexec.mainClass=\"com.tomato.todo.backend.TodoApplication\" -Dexec.args=\"--server.port=8087\" -Dmaven.test.skip=true)",
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" compile exec:java -Dexec.mainClass=\"com.tomato.todo.backend.TodoApplication\" -Dexec.args=\"--server.port=8088\" -Dmaven.test.skip=true)",
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" compile exec:java -Dexec.mainClass=\"com.tomato.todo.backend.TodoApplication\" -Dexec.args=\"--server.port=8090\" -Dmaven.test.skip=true)",
+      "Bash(copy:*)",
+      "Bash(python:*)",
+      "Bash(ping:*)",
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" compile exec:java -Dexec.mainClass=\"com.tomato.todo.backend.TodoApplication\" -Dexec.args=\"--server.port=8091\" -Dmaven.test.skip=true)",
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" compile -q)",
+      "Bash(curl:*)",
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" compile exec:java -Dexec.mainClass=\"com.tomato.todo.backend.TodoApplication\" -Dexec.args=\"--server.port=8092\" -Dmaven.test.skip=true)",
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" compile exec:java -Dexec.mainClass=\"com.tomato.todo.backend.TodoApplication\" -Dexec.args=\"--server.port=8093\" -Dmaven.test.skip=true)",
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" compile exec:java -Dexec.mainClass=\"com.tomato.todo.backend.TodoApplication\" -Dexec.args=\"--server.port=8094\" -Dmaven.test.skip=true)",
+      "Bash(netstat:*)",
+      "Bash(taskkill:*)",
+      "Bash(tskill:*)",
+      "Bash(\"d:/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" compile exec:java -Dexec.mainClass=\"com.tomato.todo.backend.TodoApplication\" -Dexec.args=\"--server.port=8095\" -Dmaven.test.skip=true)",
+      "Bash(jps:*)",
+      "Bash(\"/d/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" compile exec:java -Dexec.mainClass=\"com.tomato.todo.backend.TodoApplication\" -Dexec.args=\"--server.port=8090\" -Dmaven.test.skip=true)",
+      "Bash(\"/d/project/we_chat_mini_game/apache-maven-3.9.6/bin/mvn\" compile exec:java -Dexec.mainClass=\"com.tomato.todo.backend.TodoApplication\" -Dexec.args=\"--server.port=8091\" -Dmaven.test.skip=true)",
+      "Bash(git filter-repo:*)",
+      "Bash(git checkout:*)",
+      "Bash(git reset:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

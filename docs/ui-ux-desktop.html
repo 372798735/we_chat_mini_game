@@ -1,0 +1,1174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>番茄闹钟 - Windows桌面版UI/UX原型</title>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        /* Windows Fluent Design System */
+        :root {
+            /* Fluent Design Colors */
+            --fluent-primary: #0078D4;
+            --fluent-primary-light: #40A0FF;
+            --fluent-primary-dark: #005A9E;
+            --fluent-accent: #FF8C00;
+            --fluent-secondary: #616161;
+
+            /* Semantic Colors */
+            --fluent-background: #F3F2F1;
+            --fluent-surface: #FFFFFF;
+            --fluent-surface-alt: #FAF9F8;
+            --fluent-text-primary: #323130;
+            --fluent-text-secondary: #605E5C;
+            --fluent-text-disabled: #A19F9D;
+            --fluent-border: #EDEBE9;
+            --fluent-divider: #E1DFDD;
+
+            /* Neutrals */
+            --neutral-0: #FFFFFF;
+            --neutral-10: #FAF9F8;
+            --neutral-20: #F3F2F1;
+            --neutral-30: #EDEBE9;
+            --neutral-40: #E1DFDD;
+            --neutral-50: #D2D0CE;
+            --neutral-60: #C8C6C4;
+            --neutral-70: #BEBBB8;
+            --neutral-80: #A19F9D;
+            --neutral-90: #8A8886;
+            --neutral-100: #605E5C;
+            --neutral-110: #3B3A39;
+            --neutral-120: #323130;
+            --neutral-130: #201F1E;
+            --neutral-140: #000000;
+
+            /* Shadows */
+            --shadow-2: 0px 1.6px 3.6px rgba(0, 0, 0, 0.132),
+                         0px 0.3px 0.9px rgba(0, 0, 0, 0.108);
+            --shadow-4: 0px 2.7px 5.3px rgba(0, 0, 0, 0.161),
+                         0px 0.5px 1.3px rgba(0, 0, 0, 0.118);
+            --shadow-8: 0px 5.2px 10px rgba(0, 0, 0, 0.189),
+                         0px 1px 2.5px rgba(0, 0, 0, 0.136);
+            --shadow-16: 0px 8.9px 17.9px rgba(0, 0, 0, 0.222),
+                         0px 1.7px 4.5px rgba(0, 0, 0, 0.158);
+            --shadow-28: 0px 14.7px 29.7px rgba(0, 0, 0, 0.262),
+                         0px 2.9px 7.4px rgba(0, 0, 0, 0.18);
+            --shadow-64: 0px 25.4px 51.3px rgba(0, 0, 0, 0.33),
+                         0px 5px 12.7px rgba(0, 0, 0, 0.22);
+
+            /* Border Radius */
+            --corner-radius-2: 2px;
+            --corner-radius-4: 4px;
+            --corner-radius-8: 8px;
+
+            /* Spacing */
+            --spacing-8: 8px;
+            --spacing-16: 16px;
+            --spacing-24: 24px;
+            --spacing-32: 32px;
+            --spacing-48: 48px;
+
+            /* Typography */
+            --type-caption: 12px;
+            --type-body: 14px;
+            --type-subtitle: 16px;
+            --type-title: 20px;
+            --type-header: 24px;
+            --type-hero: 28px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--fluent-background);
+            color: var(--fluent-text-primary);
+            line-height: 1.5;
+            font-size: var(--type-body);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* 主容器 - Windows风格 */
+        .desktop-app {
+            display: flex;
+            height: 100vh;
+            background-color: var(--fluent-background);
+        }
+
+        /* 标题栏 */
+        .title-bar {
+            height: 32px;
+            background-color: var(--fluent-primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--spacing-8);
+            -webkit-app-region: drag;
+            user-select: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+
+        .title-bar-left {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-8);
+        }
+
+        .app-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .app-title {
+            font-size: var(--type-caption);
+            font-weight: 400;
+        }
+
+        .title-bar-right {
+            display: flex;
+            gap: var(--spacing-8);
+        }
+
+        .title-bar-button {
+            width: 46px;
+            height: 32px;
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            -webkit-app-region: no-drag;
+            transition: background-color 0.15s;
+        }
+
+        .title-bar-button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .title-bar-button.close:hover {
+            background-color: #E81123;
+        }
+
+        .title-bar-button .material-icons {
+            font-size: 16px;
+        }
+
+        /* 侧边栏 */
+        .sidebar {
+            width: 240px;
+            background-color: var(--fluent-surface);
+            border-right: 1px solid var(--fluent-border);
+            display: flex;
+            flex-direction: column;
+            margin-top: 32px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            overflow-y: auto;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: var(--spacing-24) var(--spacing-16);
+            border-bottom: 1px solid var(--fluent-border);
+        }
+
+        .sidebar-nav {
+            padding: var(--spacing-8);
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-12) var(--spacing-16);
+            margin-bottom: 4px;
+            border-radius: var(--corner-radius-4);
+            cursor: pointer;
+            transition: all 0.15s;
+            color: var(--fluent-text-primary);
+            text-decoration: none;
+        }
+
+        .nav-item:hover {
+            background-color: var(--fluent-neutral-10);
+        }
+
+        .nav-item.active {
+            background-color: var(--fluent-primary);
+            color: white;
+        }
+
+        .nav-item .material-icons {
+            margin-right: var(--spacing-12);
+            font-size: 20px;
+        }
+
+        /* 主内容区域 */
+        .main-content {
+            flex: 1;
+            margin-left: 240px;
+            margin-top: 32px;
+            padding: var(--spacing-24);
+            overflow-y: auto;
+            height: calc(100vh - 32px);
+        }
+
+        /* 页面标题 */
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--spacing-32);
+        }
+
+        .page-title {
+            font-size: var(--type-hero);
+            font-weight: 600;
+            color: var(--fluent-text-primary);
+        }
+
+        /* 工具栏 */
+        .toolbar {
+            display: flex;
+            gap: var(--spacing-8);
+            margin-bottom: var(--spacing-24);
+        }
+
+        .btn {
+            padding: var(--spacing-8) var(--spacing-16);
+            border: 1px solid var(--fluent-border);
+            border-radius: var(--corner-radius-4);
+            background-color: var(--fluent-surface);
+            color: var(--fluent-text-primary);
+            font-family: inherit;
+            font-size: var(--type-body);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-8);
+            transition: all 0.15s;
+            min-height: 32px;
+        }
+
+        .btn:hover {
+            background-color: var(--fluent-neutral-10);
+            border-color: var(--fluent-neutral-50);
+        }
+
+        .btn:active {
+            background-color: var(--fluent-neutral-20);
+        }
+
+        .btn-primary {
+            background-color: var(--fluent-primary);
+            color: white;
+            border-color: var(--fluent-primary);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--fluent-primary-light);
+            border-color: var(--fluent-primary-light);
+        }
+
+        .btn .material-icons {
+            font-size: 16px;
+        }
+
+        /* 统计卡片 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--spacing-16);
+            margin-bottom: var(--spacing-32);
+        }
+
+        .stat-card {
+            background-color: var(--fluent-surface);
+            border: 1px solid var(--fluent-border);
+            border-radius: var(--corner-radius-4);
+            padding: var(--spacing-16);
+            box-shadow: var(--shadow-2);
+        }
+
+        .stat-value {
+            font-size: var(--type-header);
+            font-weight: 600;
+            color: var(--fluent-primary);
+            margin-bottom: var(--spacing-4);
+        }
+
+        .stat-label {
+            font-size: var(--type-caption);
+            color: var(--fluent-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* 任务列表 */
+        .task-list {
+            background-color: var(--fluent-surface);
+            border: 1px solid var(--fluent-border);
+            border-radius: var(--corner-radius-4);
+            overflow: hidden;
+            box-shadow: var(--shadow-2);
+        }
+
+        .task-list-header {
+            background-color: var(--fluent-surface-alt);
+            padding: var(--spacing-12) var(--spacing-16);
+            border-bottom: 1px solid var(--fluent-border);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-12) var(--spacing-16);
+            border-bottom: 1px solid var(--fluent-border);
+            transition: background-color 0.15s;
+        }
+
+        .task-item:hover {
+            background-color: var(--fluent-neutral-10);
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: var(--spacing-12);
+            cursor: pointer;
+            accent-color: var(--fluent-primary);
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 500;
+            margin-bottom: var(--spacing-4);
+        }
+
+        .task-meta {
+            display: flex;
+            gap: var(--spacing-16);
+            font-size: var(--type-caption);
+            color: var(--fluent-text-secondary);
+        }
+
+        .task-priority {
+            padding: 2px 8px;
+            border-radius: var(--corner-radius-2);
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        .priority-high {
+            background-color: #FDE7E9;
+            color: #D13438;
+        }
+
+        .priority-medium {
+            background-color: #FFF4CE;
+            color: #CA5010;
+        }
+
+        .priority-low {
+            background-color: #D1F9E3;
+            color: #107C10;
+        }
+
+        /* 计时器页面 */
+        .timer-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 32px);
+            padding: var(--spacing-48);
+        }
+
+        .timer-circle {
+            width: 320px;
+            height: 320px;
+            position: relative;
+            margin-bottom: var(--spacing-48);
+        }
+
+        .timer-circle svg {
+            width: 100%;
+            height: 100%;
+            transform: rotate(-90deg);
+        }
+
+        .timer-circle-bg {
+            fill: none;
+            stroke: var(--fluent-neutral-20);
+            stroke-width: 12;
+        }
+
+        .timer-circle-progress {
+            fill: none;
+            stroke: var(--fluent-primary);
+            stroke-width: 12;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 1s linear;
+        }
+
+        .timer-display {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .timer-time {
+            font-size: 56px;
+            font-weight: 300;
+            color: var(--fluent-text-primary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .timer-task {
+            font-size: var(--type-subtitle);
+            color: var(--fluent-text-secondary);
+            margin-top: var(--spacing-8);
+            max-width: 280px;
+            text-align: center;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: var(--spacing-24);
+            align-items: center;
+        }
+
+        .timer-btn {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: var(--shadow-4);
+        }
+
+        .timer-btn.primary {
+            background-color: var(--fluent-primary);
+            color: white;
+        }
+
+        .timer-btn.secondary {
+            background-color: var(--fluent-surface);
+            color: var(--fluent-text-primary);
+            border: 1px solid var(--fluent-border);
+        }
+
+        .timer-btn:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-8);
+        }
+
+        .timer-btn .material-icons {
+            font-size: 32px;
+        }
+
+        /* 统计页面 */
+        .stats-container {
+            display: none;
+        }
+
+        .chart-section {
+            background-color: var(--fluent-surface);
+            border: 1px solid var(--fluent-border);
+            border-radius: var(--corner-radius-4);
+            padding: var(--spacing-24);
+            margin-bottom: var(--spacing-24);
+            box-shadow: var(--shadow-2);
+        }
+
+        .section-title {
+            font-size: var(--type-title);
+            font-weight: 600;
+            margin-bottom: var(--spacing-24);
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            background: linear-gradient(135deg, var(--fluent-neutral-10) 25%, transparent 25%) - 50px 0,
+                        linear-gradient(225deg, var(--fluent-neutral-10) 25%, transparent 25%) - 50px 0,
+                        linear-gradient(315deg, var(--fluent-neutral-10) 25%, transparent 25%),
+                        linear-gradient(45deg, var(--fluent-neutral-10) 25%, transparent 25%);
+            background-size: 100px 100px;
+            background-color: white;
+            border-radius: var(--corner-radius-4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--fluent-text-secondary);
+        }
+
+        /* 设置页面 */
+        .settings-container {
+            display: none;
+        }
+
+        .settings-section {
+            background-color: var(--fluent-surface);
+            border: 1px solid var(--fluent-border);
+            border-radius: var(--corner-radius-4);
+            padding: var(--spacing-24);
+            margin-bottom: var(--spacing-24);
+            box-shadow: var(--shadow-2);
+        }
+
+        .settings-group {
+            margin-bottom: var(--spacing-32);
+        }
+
+        .settings-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .settings-group-title {
+            font-size: var(--type-subtitle);
+            font-weight: 600;
+            margin-bottom: var(--spacing-16);
+            color: var(--fluent-text-primary);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-12) 0;
+            border-bottom: 1px solid var(--fluent-divider);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-label {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .setting-name {
+            font-weight: 500;
+            margin-bottom: var(--spacing-4);
+        }
+
+        .setting-description {
+            font-size: var(--type-caption);
+            color: var(--fluent-text-secondary);
+        }
+
+        /* Toggle Switch */
+        .toggle {
+            position: relative;
+            width: 48px;
+            height: 24px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--fluent-neutral-50);
+            transition: 0.15s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.15s;
+            border-radius: 50%;
+            box-shadow: var(--shadow-2);
+        }
+
+        .toggle input:checked + .toggle-slider {
+            background-color: var(--fluent-primary);
+        }
+
+        .toggle input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 200px;
+            }
+            .main-content {
+                margin-left: 200px;
+            }
+        }
+
+        /* 页面切换 */
+        .page-content {
+            display: block;
+        }
+
+        /* 滚动条样式 */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--fluent-neutral-10);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--fluent-neutral-50);
+            border-radius: var(--corner-radius-8);
+            border: 3px solid var(--fluent-neutral-10);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--fluent-neutral-60);
+        }
+
+        /* 通知提示 */
+        .toast {
+            position: fixed;
+            bottom: var(--spacing-24);
+            right: var(--spacing-24);
+            background-color: var(--fluent-neutral-130);
+            color: white;
+            padding: var(--spacing-12) var(--spacing-16);
+            border-radius: var(--corner-radius-4);
+            box-shadow: var(--shadow-8);
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Windows标题栏 -->
+    <div class="title-bar">
+        <div class="title-bar-left">
+            <svg class="app-icon" viewBox="0 0 16 16">
+                <circle cx="8" cy="8" r="6" fill="#FF6D00"/>
+            </svg>
+            <span class="app-title">番茄闹钟</span>
+        </div>
+        <div class="title-bar-right">
+            <button class="title-bar-button" onclick="minimizeWindow()">
+                <span class="material-icons">remove</span>
+            </button>
+            <button class="title-bar-button" onclick="maximizeWindow()">
+                <span class="material-icons">square</span>
+            </button>
+            <button class="title-bar-button close" onclick="closeWindow()">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 主应用容器 -->
+    <div class="desktop-app">
+        <!-- 侧边栏 -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>番茄闹钟</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" onclick="switchPage('tasks')">
+                    <span class="material-icons">task_alt</span>
+                    <span>任务管理</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchPage('timer')">
+                    <span class="material-icons">timer</span>
+                    <span>专注计时</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchPage('statistics')">
+                    <span class="material-icons">analytics</span>
+                    <span>统计分析</span>
+                </a>
+                <a href="#" class="nav-item" onclick="switchPage('settings')">
+                    <span class="material-icons">settings</span>
+                    <span>设置</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 任务列表页面 -->
+            <div class="page-content" id="tasksPage">
+                <div class="page-header">
+                    <h1 class="page-title">任务管理</h1>
+                    <div class="toolbar">
+                        <button class="btn btn-primary">
+                            <span class="material-icons">add</span>
+                            新建任务
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 统计卡片 -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">待完成任务</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">已完成</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">3h 25m</div>
+                        <div class="stat-label">今日专注</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">71%</div>
+                        <div class="stat-label">完成率</div>
+                    </div>
+                </div>
+
+                <!-- 任务列表 -->
+                <div class="task-list">
+                    <div class="task-list-header">
+                        <span>今日任务</span>
+                        <span class="task-meta">共 17 个任务</span>
+                    </div>
+                    <div class="task-item">
+                        <input type="checkbox" class="task-checkbox">
+                        <div class="task-content">
+                            <div class="task-title">完成Q4季度项目提案报告</div>
+                            <div class="task-meta">
+                                <span>预计 25 分钟</span>
+                                <span class="task-priority priority-high">高优先级</span>
+                                <span>工作</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-item">
+                        <input type="checkbox" class="task-checkbox" checked>
+                        <div class="task-content">
+                            <div class="task-title">代码审查 - 优化数据库查询</div>
+                            <div class="task-meta">
+                                <span>已完成 15 分钟</span>
+                                <span class="task-priority priority-medium">中优先级</span>
+                                <span>工作</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-item">
+                        <input type="checkbox" class="task-checkbox">
+                        <div class="task-content">
+                            <div class="task-title">准备下周一的产品演示文稿</div>
+                            <div class="task-meta">
+                                <span>预计 45 分钟</span>
+                                <span class="task-priority priority-medium">中优先级</span>
+                                <span>工作</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-item">
+                        <input type="checkbox" class="task-checkbox">
+                        <div class="task-content">
+                            <div class="task-title">学习React 18的新特性</div>
+                            <div class="task-meta">
+                                <span>预计 30 分钟</span>
+                                <span class="task-priority priority-low">低优先级</span>
+                                <span>学习</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="task-item">
+                        <input type="checkbox" class="task-checkbox">
+                        <div class="task-content">
+                            <div class="task-title">健身锻炼 - 晚间跑步</div>
+                            <div class="task-meta">
+                                <span>预计 30 分钟</span>
+                                <span class="task-priority priority-low">低优先级</span>
+                                <span>生活</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 计时器页面 -->
+            <div class="timer-container" id="timerPage">
+                <div class="timer-circle">
+                    <svg>
+                        <circle class="timer-circle-bg" cx="160" cy="160" r="140"></circle>
+                        <circle class="timer-circle-progress" cx="160" cy="160" r="140"
+                                stroke-dasharray="879.65" stroke-dashoffset="219.91"></circle>
+                    </svg>
+                    <div class="timer-display">
+                        <div class="timer-time">24:35</div>
+                        <div class="timer-task">完成Q4季度项目提案报告</div>
+                    </div>
+                </div>
+
+                <div class="timer-controls">
+                    <button class="timer-btn secondary">
+                        <span class="material-icons">stop</span>
+                    </button>
+                    <button class="timer-btn primary">
+                        <span class="material-icons">pause</span>
+                    </button>
+                    <button class="timer-btn secondary">
+                        <span class="material-icons">skip_next</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 统计页面 -->
+            <div class="stats-container" id="statisticsPage">
+                <div class="page-header">
+                    <h1 class="page-title">统计分析</h1>
+                </div>
+
+                <div class="chart-section">
+                    <h2 class="section-title">本周专注时长趋势</h2>
+                    <div class="chart-placeholder">
+                        <span>📊 柱状图：周一到周日每日专注时长</span>
+                    </div>
+                </div>
+
+                <div class="chart-section">
+                    <h2 class="section-title">任务分类分布</h2>
+                    <div class="chart-placeholder">
+                        <span>🥧 饼图：工作 60% | 学习 25% | 生活 15%</span>
+                    </div>
+                </div>
+
+                <div class="chart-section">
+                    <h2 class="section-title">最佳表现时段分析</h2>
+                    <div class="chart-placeholder">
+                        <span>📈 热力图：09:00-11:00 为最高效时段</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 设置页面 -->
+            <div class="settings-container" id="settingsPage">
+                <div class="page-header">
+                    <h1 class="page-title">设置</h1>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-group">
+                        <h3 class="settings-group-title">番茄钟设置</h3>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <div class="setting-name">工作时长</div>
+                                <div class="setting-description">每个番茄钟的持续时间</div>
+                            </div>
+                            <span>25 分钟</span>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <div class="setting-name">短休息时长</div>
+                                <div class="setting-description">番茄钟之间的短暂休息</div>
+                            </div>
+                            <span>5 分钟</span>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <div class="setting-name">长休息时长</div>
+                                <div class="setting-description">每4个番茄钟后的长休息</div>
+                            </div>
+                            <span>15 分钟</span>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3 class="settings-group-title">通知设置</h3>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <div class="setting-name">启用通知</div>
+                                <div class="setting-description">接收任务提醒和休息提醒</div>
+                            </div>
+                            <label class="toggle">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <div class="setting-name">声音提醒</div>
+                                <div class="setting-description">播放提示音</div>
+                            </div>
+                            <label class="toggle">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <div class="setting-name">桌面通知</div>
+                                <div class="setting-description">显示Windows通知</div>
+                            </div>
+                            <label class="toggle">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="settings-group">
+                        <h3 class="settings-group-title">界面设置</h3>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <div class="setting-name">深色模式</div>
+                                <div class="setting-description">切换到深色主题</div>
+                            </div>
+                            <label class="toggle">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <div class="setting-name">开机自启动</div>
+                                <div class="setting-description">Windows启动时自动运行</div>
+                            </div>
+                            <label class="toggle">
+                                <input type="checkbox">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <div class="setting-name">最小化到托盘</div>
+                                <div class="setting-description">关闭时最小化到系统托盘</div>
+                            </div>
+                            <label class="toggle">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-group">
+                        <h3 class="settings-group-title">数据管理</h3>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <div class="setting-name">自动备份</div>
+                                <div class="setting-description">每天自动备份数据</div>
+                            </div>
+                            <label class="toggle">
+                                <input type="checkbox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <div class="setting-name">导出数据</div>
+                                <div class="setting-description">导出任务和统计数据</div>
+                            </div>
+                            <button class="btn">导出</button>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-label">
+                                <div class="setting-name">清理数据</div>
+                                <div class="setting-description">删除超过1年的历史数据</div>
+                            </div>
+                            <button class="btn">清理</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 通知提示 -->
+    <div class="toast" id="toast">
+        <span id="toastMessage">提示信息</span>
+    </div>
+
+    <script>
+        // 页面切换功能
+        function switchPage(pageName) {
+            // 隐藏所有页面
+            document.querySelectorAll('.page-content, .timer-container, .stats-container, .settings-container').forEach(page => {
+                page.style.display = 'none';
+            });
+
+            // 移除所有导航项的active类
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+
+            // 显示选中的页面
+            switch(pageName) {
+                case 'tasks':
+                    document.getElementById('tasksPage').style.display = 'block';
+                    document.querySelectorAll('.nav-item')[0].classList.add('active');
+                    break;
+                case 'timer':
+                    document.getElementById('timerPage').style.display = 'flex';
+                    document.querySelectorAll('.nav-item')[1].classList.add('active');
+                    // 开始计时器动画
+                    startTimerAnimation();
+                    break;
+                case 'statistics':
+                    document.getElementById('statisticsPage').style.display = 'block';
+                    document.querySelectorAll('.nav-item')[2].classList.add('active');
+                    break;
+                case 'settings':
+                    document.getElementById('settingsPage').style.display = 'block';
+                    document.querySelectorAll('.nav-item')[3].classList.add('active');
+                    break;
+            }
+        }
+
+        // 计时器动画
+        let timerInterval;
+        function startTimerAnimation() {
+            let seconds = 24 * 60 + 35; // 24:35
+            const totalSeconds = 25 * 60; // 25分钟
+            const circle = document.querySelector('.timer-circle-progress');
+            const timeDisplay = document.querySelector('.timer-time');
+
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (seconds > 0) {
+                    seconds--;
+                    const minutes = Math.floor(seconds / 60);
+                    const secs = seconds % 60;
+                    timeDisplay.textContent =
+                        `${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+                    // 更新进度环
+                    const progress = (totalSeconds - seconds) / totalSeconds;
+                    const offset = 879.65 * (1 - progress);
+                    circle.style.strokeDashoffset = offset;
+                } else {
+                    clearInterval(timerInterval);
+                    showToast('番茄钟时间到！休息一下吧~');
+                }
+            }, 1000);
+        }
+
+        // 显示通知
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = message;
+            toast.style.display = 'block';
+
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        // 标题栏按钮功能
+        function minimizeWindow() {
+            // 实际应用中会调用Electron的最小化API
+            console.log('Minimize window');
+        }
+
+        function maximizeWindow() {
+            // 实际应用中会调用Electron的最大化API
+            console.log('Maximize window');
+        }
+
+        function closeWindow() {
+            // 实际应用中会调用Electron的关闭API
+            if (confirm('确定要关闭番茄闹钟吗？')) {
+                console.log('Close window');
+            }
+        }
+
+        // 任务复选框点击事件
+        document.querySelectorAll('.task-checkbox').forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const taskTitle = this.parentElement.querySelector('.task-title').textContent;
+                if (this.checked) {
+                    showToast(`已完成任务: ${taskTitle}`);
+                }
+            });
+        });
+
+        // 新建任务按钮
+        document.querySelector('.btn-primary').addEventListener('click', function() {
+            showToast('打开新建任务对话框');
+        });
+
+        // 设置开关事件
+        document.querySelectorAll('.toggle input').forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                const settingName = this.closest('.setting-item').querySelector('.setting-name').textContent;
+                const status = this.checked ? '已开启' : '已关闭';
+                showToast(`${settingName} ${status}`);
+            });
+        });
+
+        // 添加页面加载动画
+        window.addEventListener('load', function() {
+            document.querySelectorAll('.task-item, .stat-card').forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    item.style.transition = 'all 0.3s ease-out';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, index * 50);
+            });
+        });
+    </script>
+</body>
+</html>

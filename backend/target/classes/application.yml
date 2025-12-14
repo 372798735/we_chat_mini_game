@@ -1,0 +1,180 @@
+# 应用配置
+spring:
+  application:
+    name: tomato-todo-backend
+  profiles:
+    active: dev
+
+  # 数据源配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/tomato_todo?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      connection-timeout: 20000
+      pool-name: TomatoTodoHikariCP
+
+# Jackson配置
+  jackson:
+    time-zone: Asia/Shanghai
+    date-format: yyyy-MM-dd HH:mm:ss
+    serialization:
+      write-dates-as-timestamps: false
+
+  # Flyway数据库迁移
+  flyway:
+    enabled: false
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+    validate-on-migrate: false
+    baseline-version: 1
+    clean-disabled: false
+
+# MyBatis Plus配置
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      select-strategy: not_empty
+  mapper-locations: classpath*:mapper/**/*Mapper.xml
+  type-handlers-package: com.tomato.todo.backend.handler
+
+# 日志配置
+logging:
+  level:
+    com.tomato.todo: debug
+    org.springframework.web: debug
+    org.springframework.security: debug
+    com.baomidou.mybatisplus: debug
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  file:
+    name: logs/tomato-todo.log
+    max-size: 100MB
+    max-history: 30
+
+# 管理端点配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+    metrics:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# API文档配置
+springdoc:
+  api-docs:
+    enabled: true
+    path: /api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    operationsSorter: method
+    tryItOutEnabled: false
+    displayRequestDuration: true
+  info:
+    title: 番茄闹钟待办清单 API
+    description: 基于番茄工作法的时间管理工具后端API文档
+    version: 1.0.0
+    contact:
+      name: Tomato Todo Team
+      email: team@tomatotodo.com
+
+# JWT配置
+jwt:
+  secret: tomato-todo-secret-key-2024
+  expiration: 86400000  # 24小时
+  refresh-expiration: 604800000  # 7天
+
+# 应用自定义配置
+app:
+  # 文件上传配置
+  upload:
+    path: ./uploads
+    max-size: 10MB
+  # 定时任务配置
+  schedule:
+    enabled: true
+    backup:
+      enabled: true
+      cron: "0 0 2 * * ?"  # 每天凌晨2点执行备份
+  # 系统通知配置
+  notification:
+    enabled: true
+    task-reminder:
+      enabled: true
+      advance-minutes: 5
+
+---
+# 开发环境配置
+spring:
+  config:
+    activate:
+      on-profile: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/tomato_todo_dev?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    username: root
+    password: root
+
+logging:
+  level:
+    root: INFO
+    com.tomato.todo: DEBUG
+    org.springframework.web: DEBUG
+
+---
+# 测试环境配置
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+logging:
+  level:
+    root: WARN
+    com.tomato.todo: DEBUG
+
+---
+# 生产环境配置
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:mysql://localhost:3306/tomato_todo_prod?useSSL=true&serverTimezone=Asia/Shanghai
+    username: ${DB_USERNAME:tomato_todo}
+    password: ${DB_PASSWORD:password}
+
+logging:
+  level:
+    root: WARN
+    com.tomato.todo: INFO
+  file:
+    name: /var/log/tomato-todo/app.log

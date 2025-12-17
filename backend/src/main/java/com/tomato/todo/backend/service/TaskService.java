@@ -7,7 +7,10 @@ import com.tomato.todo.backend.dto.task.TaskQueryRequest;
 import com.tomato.todo.backend.dto.task.TaskResponse;
 import com.tomato.todo.backend.dto.task.TaskUpdateRequest;
 import com.tomato.todo.backend.entity.Task;
+import com.tomato.todo.backend.entity.Tag;
 import com.tomato.todo.backend.repository.TaskRepository;
+import com.tomato.todo.backend.mapper.TagMapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +34,7 @@ import java.util.stream.Collectors;
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final TagMapper tagMapper;
 
     /**
      * 创建任务
@@ -43,6 +47,7 @@ public class TaskService {
         task.setUserId(userId);
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
+        task.setSummary(request.getSummary());
         task.setEstimatedDuration(request.getEstimatedDuration());
         task.setActualDuration(0);
         task.setCategoryId(request.getCategoryId());
@@ -83,6 +88,9 @@ public class TaskService {
         }
         if (request.getDescription() != null) {
             task.setDescription(request.getDescription());
+        }
+        if (request.getSummary() != null) {
+            task.setSummary(request.getSummary());
         }
         if (request.getEstimatedDuration() != null) {
             task.setEstimatedDuration(request.getEstimatedDuration());
@@ -172,8 +180,39 @@ public class TaskService {
     public IPage<TaskResponse> getTasks(Long userId, TaskQueryRequest request) {
         log.info("查询任务列表，用户ID: {}, 页码: {}, 每页大小: {}", userId, request.getPageNum(), request.getPageSize());
 
+        // 如果传入了标签ID，需要转换为标签名称进行查询
+        List<String> tagNamesFromIds = null;
+        if (request.getTagIds() != null && !request.getTagIds().isEmpty()) {
+            tagNamesFromIds = convertTagIdsToNames(userId, request.getTagIds());
+            log.info("将标签ID {} 转换为标签名称: {}", request.getTagIds(), tagNamesFromIds);
+        }
+
+        // 合并标签名称列表
+        List<String> allTagNames = request.getTagNames();
+        if (tagNamesFromIds != null && !tagNamesFromIds.isEmpty()) {
+            if (allTagNames == null) {
+                allTagNames = tagNamesFromIds;
+            } else {
+                allTagNames.addAll(tagNamesFromIds);
+            }
+        }
+
         Page<Task> page = new Page<>(request.getPageNum(), request.getPageSize());
-        IPage<Task> taskPage = taskRepository.findByUserIdWithPage(page, userId);
+        IPage<Task> taskPage = taskRepository.findByConditions(
+            page,
+            userId,
+            request.getStatus(),
+            request.getPriority(),
+            request.getCategoryId(),
+            request.getParentTaskId(),
+            request.getKeyword(),
+            request.getTodayOnly(),
+            request.getOverdueOnly(),
+            null, // tagIds不再需要，因为我们已经转换为tagNames
+            allTagNames,
+            request.getSortBy(),
+            request.getSortDirection()
+        );
 
         return taskPage.convert(this::convertToResponse);
     }
@@ -265,6 +304,26 @@ public class TaskService {
     }
 
     /**
+     * 将标签ID列表转换为标签名称列表
+     */
+    private List<String> convertTagIdsToNames(Long userId, List<Long> tagIds) {
+        if (tagIds == null || tagIds.isEmpty()) {
+            return null;
+        }
+
+        QueryWrapper<Tag> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("user_id", userId)
+                   .in("id", tagIds)
+                   .eq("deleted", 0);
+
+        List<Tag> tags = tagMapper.selectList(queryWrapper);
+
+        return tags.stream()
+                   .map(Tag::getName)
+                   .collect(Collectors.toList());
+    }
+
+    /**
      * 转换为响应DTO
      */
     private TaskResponse convertToResponse(Task task) {
@@ -274,6 +333,7 @@ public class TaskService {
         response.setCategoryId(task.getCategoryId());
         response.setTitle(task.getTitle());
         response.setDescription(task.getDescription());
+        response.setSummary(task.getSummary());
         response.setEstimatedDuration(task.getEstimatedDuration());
         response.setActualDuration(task.getActualDuration());
         response.setPriority(task.getPriority());

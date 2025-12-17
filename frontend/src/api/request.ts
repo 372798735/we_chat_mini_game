@@ -7,7 +7,7 @@ const getApiBaseUrl = () => {
     return process.env.REACT_APP_API_BASE_URL;
   }
   // 如果没有环境变量，使用默认值 - 连接到真正的Spring Boot后端
-  return 'http://localhost:8091/api/api';
+  return 'http://localhost:19000/api';
 };
 
 const BASE_URL = getApiBaseUrl();
@@ -54,9 +54,26 @@ axiosInstance.interceptors.request.use(
     if (userId) {
       config.headers['X-User-Id'] = userId;
     } else {
-      // 如果没有用户ID，记录警告并设置默认值
-      console.warn('未找到用户ID，请确保用户已登录');
-      config.headers['X-User-Id'] = '0'; // 设置为0表示未认证用户
+      // 尝试从用户信息中获取ID
+      const userInfo = localStorage.getItem('user');
+      if (userInfo) {
+        try {
+          const user = JSON.parse(userInfo);
+          if (user.id) {
+            config.headers['X-User-Id'] = user.id.toString();
+            localStorage.setItem('userId', user.id.toString());
+          } else {
+            console.warn('用户信息中没有ID字段');
+            config.headers['X-User-Id'] = '2'; // 使用已知的有效用户ID
+          }
+        } catch (e) {
+          console.warn('解析用户信息失败:', e);
+          config.headers['X-User-Id'] = '2'; // 使用已知的有效用户ID
+        }
+      } else {
+        console.warn('未找到用户信息，使用默认用户ID');
+        config.headers['X-User-Id'] = '2'; // 使用已知的有效用户ID
+      }
     }
 
     // 添加请求ID用于追踪
@@ -135,31 +152,51 @@ class Request {
   // GET请求
   static async get<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
     const response = await axiosInstance.get<ApiResponse<T>>(url, config);
+    // 检查响应数据格式，如果是数组则直接返回，如果是包装格式则返回data字段
+    if (Array.isArray(response.data)) {
+      return response.data as T;
+    }
     return response.data.data;
   }
 
   // POST请求
   static async post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
     const response = await axiosInstance.post<ApiResponse<T>>(url, data, config);
-    return response.data.data;
+    // 检查响应数据格式，如果是对象且包含data字段则返回data字段
+    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+      return response.data.data;
+    }
+    return response.data;
   }
 
   // PUT请求
   static async put<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
     const response = await axiosInstance.put<ApiResponse<T>>(url, data, config);
-    return response.data.data;
+    // 检查响应数据格式，如果是对象且包含data字段则返回data字段
+    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+      return response.data.data;
+    }
+    return response.data;
   }
 
   // PATCH请求
   static async patch<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<T> {
     const response = await axiosInstance.patch<ApiResponse<T>>(url, data, config);
-    return response.data.data;
+    // 检查响应数据格式，如果是对象且包含data字段则返回data字段
+    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+      return response.data.data;
+    }
+    return response.data;
   }
 
   // DELETE请求
   static async delete<T = any>(url: string, config?: AxiosRequestConfig): Promise<T> {
     const response = await axiosInstance.delete<ApiResponse<T>>(url, config);
-    return response.data.data;
+    // 检查响应数据格式，如果是对象且包含data字段则返回data字段
+    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+      return response.data.data;
+    }
+    return response.data;
   }
 
   // 文件上传

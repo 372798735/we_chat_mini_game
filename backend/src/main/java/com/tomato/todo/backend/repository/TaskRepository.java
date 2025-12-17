@@ -98,4 +98,58 @@ public interface TaskRepository extends BaseMapper<Task> {
      */
     @Select("SELECT * FROM t_task WHERE id = #{taskId} AND user_id = #{userId} AND deleted = 0")
     Task findByIdAndUserId(@Param("taskId") Long taskId, @Param("userId") Long userId);
+
+    /**
+     * 根据多个条件动态查询用户任务
+     */
+    @Select({
+        "<script>",
+        "SELECT * FROM t_task WHERE user_id = #{userId} AND deleted = 0",
+        "<if test='status != null'>AND status = #{status}</if>",
+        "<if test='priority != null'>AND priority = #{priority}</if>",
+        "<if test='categoryId != null'>AND category_id = #{categoryId}</if>",
+        "<if test='parentTaskId != null'>AND parent_task_id = #{parentTaskId}</if>",
+        "<if test='keyword != null and keyword != \"\"'>",
+        "AND (title LIKE CONCAT('%', #{keyword}, '%') OR description LIKE CONCAT('%', #{keyword}, '%'))",
+        "</if>",
+        "<if test='todayOnly == true'>",
+        "AND DATE(due_date) = CURDATE()",
+        "</if>",
+        "<if test='overdueOnly == true'>",
+        "AND due_date &lt; NOW() AND status NOT IN ('completed', 'cancelled')",
+        "</if>",
+          "<if test='tagNames != null and tagNames.size() > 0'>",
+        "AND (",
+        "<foreach collection='tagNames' item='tagName' separator=' OR '>",
+        "tags LIKE CONCAT('%', #{tagName}, '%')",
+        "</foreach>",
+        ")",
+        "</if>",
+        "ORDER BY ",
+        "<choose>",
+        "<when test='sortBy == \"createdAt\" and sortDirection == \"asc\"'>created_at ASC</when>",
+        "<when test='sortBy == \"createdAt\" and sortDirection == \"desc\"'>created_at DESC</when>",
+        "<when test='sortBy == \"dueDate\" and sortDirection == \"asc\"'>due_date ASC</when>",
+        "<when test='sortBy == \"dueDate\" and sortDirection == \"desc\"'>due_date DESC</when>",
+        "<when test='sortBy == \"priority\" and sortDirection == \"asc\"'>priority ASC</when>",
+        "<when test='sortBy == \"priority\" and sortDirection == \"desc\"'>priority DESC</when>",
+        "<when test='sortBy == \"sortOrder\" and sortDirection == \"asc\"'>sort_order ASC</when>",
+        "<when test='sortBy == \"sortOrder\" and sortDirection == \"desc\"'>sort_order DESC</when>",
+        "<otherwise>sort_order ASC, created_at DESC</otherwise>",
+        "</choose>",
+        "</script>"
+    })
+    IPage<Task> findByConditions(Page<Task> page,
+                               @Param("userId") Long userId,
+                               @Param("status") Task.TaskStatus status,
+                               @Param("priority") Task.Priority priority,
+                               @Param("categoryId") Long categoryId,
+                               @Param("parentTaskId") Long parentTaskId,
+                               @Param("keyword") String keyword,
+                               @Param("todayOnly") Boolean todayOnly,
+                               @Param("overdueOnly") Boolean overdueOnly,
+                               @Param("tagIds") List<Long> tagIds,
+                               @Param("tagNames") List<String> tagNames,
+                               @Param("sortBy") String sortBy,
+                               @Param("sortDirection") String sortDirection);
 }

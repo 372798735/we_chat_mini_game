@@ -25,6 +25,8 @@ public class TaskResponse {
 
     private String description;
 
+    private String summary;
+
     private Integer estimatedDuration;
 
     private Integer actualDuration;

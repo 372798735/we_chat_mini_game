@@ -60,7 +60,7 @@ public interface PomodoroRepository extends BaseMapper<Pomodoro> {
     /**
      * 统计用户今日专注总时长
      */
-    @Select("SELECT SUM(actual_duration) FROM t_pomodoro WHERE user_id = #{userId} AND type = 'work' AND is_completed = 1 AND DATE(started_at) = DATE(#{date}) AND deleted = 0")
+    @Select("SELECT SUM(actual_duration) FROM t_pomodoro WHERE user_id = #{userId} AND type = 'work' AND actual_duration > 0 AND DATE(started_at) = DATE(#{date}) AND deleted = 0")
     Integer sumTodayFocusTime(@Param("userId") Long userId, @Param("date") LocalDate date);
 
     /**

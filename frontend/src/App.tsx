@@ -12,6 +12,7 @@ import Settings from './pages/Settings'
 import Login from './pages/Login'
 import Profile from './pages/Profile'
 import TestDataSeparation from './pages/TestDataSeparation'
+import TagManagement from './pages/TagManagement'
 import MainLayout from './pages/MainLayout'
 
 // 组件
@@ -123,6 +124,14 @@ function App() {
         element={
           <ProtectedRoute>
             <MainLayout><Profile /></MainLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/tags"
+        element={
+          <ProtectedRoute>
+            <MainLayout><TagManagement /></MainLayout>
           </ProtectedRoute>
         }
       />

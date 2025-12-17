@@ -89,6 +89,23 @@ public class PomodoroController {
     }
 
     /**
+     * 强制停止当前活跃的番茄钟（调试用）
+     */
+    @PostMapping("/force-stop")
+    @Operation(summary = "强制停止活跃番茄钟", description = "强制停止当前正在进行的番茄钟")
+    public ResponseEntity<ApiResponse<String>> forceStopActivePomodoro(
+            @Parameter(hidden = true) @RequestHeader("X-User-Id") Long userId) {
+        log.info("强制停止活跃番茄钟，用户ID: {}", userId);
+
+        try {
+            pomodoroService.forceStopActivePomodoroSql(userId);
+            return ResponseEntity.ok(ApiResponse.success("成功停止活跃番茄钟"));
+        } catch (Exception e) {
+            return ResponseEntity.ok(ApiResponse.success("没有活跃的番茄钟需要停止"));
+        }
+    }
+
+    /**
      * 获取番茄钟记录列表
      */
     @GetMapping

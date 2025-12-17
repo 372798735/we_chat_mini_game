@@ -15,7 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  */
 @SpringBootApplication
 @ComponentScan(basePackages = "com.tomato.todo.backend")
-@MapperScan("com.tomato.todo.backend.repository")
+@MapperScan({"com.tomato.todo.backend.repository", "com.tomato.todo.backend.mapper"})
 @EnableAsync
 @EnableScheduling
 public class TodoApplication {

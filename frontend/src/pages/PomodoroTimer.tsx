@@ -126,14 +126,12 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = () => {
       console.error('加载今日数据失败:', error);
       // 设置默认数据
       setTodayStats({
-        todayFocusTime: 0,
-        completedSessions: 0,
-        totalSessions: 0,
-        interruptionCount: 0,
-        currentStreak: 0,
-        weeklySessions: [],
-        dailyAverage: 0,
-        completionRate: 0,
+        totalPomodoros: 0,
+        totalWork: 0,
+        totalShortBreak: 0,
+        totalLongBreak: 0,
+        totalFocusMinutes: 0,
+        totalFocusHours: 0.0,
       });
       setTodaySessions([]);
     }
@@ -193,6 +191,12 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = () => {
   const handleStart = async () => {
     if (!currentTask && pomodoroType === 'work') {
       setShowTaskSelect(true);
+      return;
+    }
+
+    // 检查任务状态：已完成的任务不能开始番茄钟
+    if (currentTask && currentTask.status === 'completed') {
+      message.warning('该任务已完成，无法开始番茄钟。请选择未完成的任务。');
       return;
     }
 
@@ -281,6 +285,7 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = () => {
         const actualDuration = totalTime - currentTime;
         await pomodoroApi.completeSession(currentSessionId, {
           actualDuration: Math.floor(actualDuration / 60),
+          isCompleted: true,  // 关键：标记番茄钟为完成状态
           notes: currentTask ? `完成任务: ${currentTask.title}` : undefined
         });
 
@@ -565,15 +570,15 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = () => {
               {todayStats && (
                 <div className="stats-grid">
                   <div className="stat-item">
-                    <div className="stat-value">{todayStats.completedSessions || 0}</div>
+                    <div className="stat-value">{todayStats.totalWork || 0}</div>
                     <div className="stat-label">完成番茄</div>
                   </div>
                   <div className="stat-item">
-                    <div className="stat-value">{Math.floor(todayStats.todayFocusTime)}min</div>
+                    <div className="stat-value">{Math.floor(todayStats.totalFocusMinutes || 0)}min</div>
                     <div className="stat-label">专注时长</div>
                   </div>
                   <div className="stat-item">
-                    <div className="stat-value">{todayStats.totalSessions || 0}</div>
+                    <div className="stat-value">{todayStats.totalPomodoros || 0}</div>
                     <div className="stat-label">总会话</div>
                   </div>
                   <div className="stat-item">

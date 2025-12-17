@@ -6,6 +6,7 @@ import com.tomato.todo.backend.dto.pomodoro.PomodoroResponse;
 import com.tomato.todo.backend.dto.pomodoro.PomodoroStartRequest;
 import com.tomato.todo.backend.dto.pomodoro.PomodoroStopRequest;
 import com.tomato.todo.backend.entity.Pomodoro;
+import com.tomato.todo.backend.entity.Task;
 import com.tomato.todo.backend.repository.PomodoroRepository;
 import com.tomato.todo.backend.repository.TaskRepository;
 
@@ -15,6 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -34,6 +39,7 @@ public class PomodoroService {
 
     private final PomodoroRepository pomodoroRepository;
     private final TaskRepository taskRepository;
+    private final DataSource dataSource;
 
     /**
      * 开始番茄钟
@@ -43,14 +49,31 @@ public class PomodoroService {
         log.info("开始番茄钟，用户ID: {}, 任务ID: {}, 类型: {}", userId, request.getTaskId(), request.getType());
 
         // 验证任务是否存在且属于当前用户
-        if (taskRepository.selectById(request.getTaskId()) == null) {
+        Task task = taskRepository.selectById(request.getTaskId());
+        if (task == null) {
             throw new RuntimeException("任务不存在");
         }
 
-        // 检查是否有进行中的番茄钟
+        // 验证任务是否属于当前用户
+        if (!task.getUserId().equals(userId)) {
+            throw new RuntimeException("无权限访问该任务");
+        }
+
+        // 验证任务是否已完成，已完成的任务不能开始新的番茄钟
+        if (task.getStatus() == Task.TaskStatus.COMPLETED) {
+            throw new RuntimeException("任务已完成，无法开始新的番茄钟");
+        }
+
+        // 检查是否有进行中的番茄钟，如果有则自动停止
         Pomodoro activePomodoro = pomodoroRepository.findActivePomodoro(userId);
         if (activePomodoro != null) {
-            throw new RuntimeException("已有进行中的番茄钟，请先停止当前番茄钟");
+            log.info("发现活跃番茄钟ID: {}，自动停止", activePomodoro.getId());
+            // 自动停止现有的活跃番茄钟
+            activePomodoro.setEndedAt(LocalDateTime.now());
+            activePomodoro.setIsCompleted(false); // 标记为未完成，因为是中断
+            activePomodoro.setNotes((activePomodoro.getNotes() != null ? activePomodoro.getNotes() : "") + " [自动中断]");
+            activePomodoro.setActualDuration((int) java.time.Duration.between(activePomodoro.getStartedAt(), LocalDateTime.now()).toMinutes());
+            pomodoroRepository.updateById(activePomodoro);
         }
 
         Pomodoro pomodoro = new Pomodoro();
@@ -206,14 +229,33 @@ public class PomodoroService {
     }
 
     /**
-     * 更新任务实际时长
+     * 更新任务实际时长和状态
      */
     @Transactional
     private void updateTaskActualDuration(Long taskId, int additionalMinutes) {
-        // 这里可以更新任务的累计实际时长
-        // 当前task表中actual_duration字段表示单个任务的实际用时
-        // 如果需要累计，可以在任务表中添加一个新的字段
         log.info("任务 {} 新增实际时长 {} 分钟", taskId, additionalMinutes);
+
+        // 获取任务信息
+        Task task = taskRepository.selectById(taskId);
+        if (task == null) {
+            log.warn("任务不存在，ID: {}", taskId);
+            return;
+        }
+
+        // 更新实际时长（累计时长）
+        int currentDuration = task.getActualDuration() != null ? task.getActualDuration() : 0;
+        task.setActualDuration(currentDuration + additionalMinutes);
+
+        // 如果任务还不是完成状态，将其标记为已完成
+        if (task.getStatus() != Task.TaskStatus.COMPLETED) {
+            task.setStatus(Task.TaskStatus.COMPLETED);
+            task.setCompletedAt(LocalDateTime.now());
+            log.info("任务 {} 已标记为完成", taskId);
+        }
+
+        // 更新任务
+        taskRepository.updateById(task);
+        log.info("任务 {} 时长和状态更新完成", taskId);
     }
 
     /**
@@ -278,6 +320,42 @@ public class PomodoroService {
         // 计算专注小时数
         public Double getTotalFocusHours() {
             return totalFocusMinutes != null ? totalFocusMinutes / 60.0 : 0.0;
+        }
+    }
+
+    /**
+     * 直接使用SQL强制停止活跃番茄钟（临时解决方案）
+     */
+    @Transactional
+    public void forceStopActivePomodoroSql(Long userId) {
+        log.info("使用SQL强制停止活跃番茄钟，用户ID: {}", userId);
+
+        try (Connection conn = dataSource.getConnection()) {
+            // 查找活跃的番茄钟ID
+            String findSql = "SELECT id FROM t_pomodoro WHERE user_id = ? AND is_completed = 0 AND ended_at IS NULL AND deleted = 0 ORDER BY started_at DESC LIMIT 1";
+
+            try (PreparedStatement findStmt = conn.prepareStatement(findSql)) {
+                findStmt.setLong(1, userId);
+                ResultSet rs = findStmt.executeQuery();
+
+                if (rs.next()) {
+                    Long pomodoroId = rs.getLong("id");
+                    log.info("找到活跃番茄钟ID: {}", pomodoroId);
+
+                    // 直接更新数据库，停止番茄钟
+                    String updateSql = "UPDATE t_pomodoro SET ended_at = NOW(), is_completed = 0, interruption_count = 1, notes = '系统强制停止' WHERE id = ?";
+                    try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                        updateStmt.setLong(1, pomodoroId);
+                        int affectedRows = updateStmt.executeUpdate();
+                        log.info("成功停止番茄钟，影响行数: {}", affectedRows);
+                    }
+                } else {
+                    log.info("没有找到活跃的番茄钟");
+                }
+            }
+        } catch (Exception e) {
+            log.error("强制停止活跃番茄钟失败", e);
+            throw new RuntimeException("强制停止失败: " + e.getMessage());
         }
     }
 }

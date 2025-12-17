@@ -22,6 +22,7 @@ export interface Task {
   categoryId?: number;
   title: string;
   description?: string;
+  summary?: string;
   estimatedDuration: number; // 分钟
   actualDuration: number; // 分钟
   priority: TaskPriority | 'low' | 'medium' | 'high';
@@ -42,6 +43,7 @@ export interface Task {
 export interface TaskCreateRequest {
   title: string;
   description?: string;
+  summary?: string;
   estimatedDuration: number;
   categoryId?: number;
   priority: TaskPriority;
@@ -58,6 +60,7 @@ export interface TaskCreateRequest {
 export interface TaskUpdateRequest {
   title?: string;
   description?: string;
+  summary?: string;
   estimatedDuration?: number;
   actualDuration?: number;
   categoryId?: number;

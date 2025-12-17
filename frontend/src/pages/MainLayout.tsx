@@ -25,6 +25,7 @@ import {
   BellOutlined,
   LogoutOutlined,
   ProfileOutlined,
+  TagsOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
@@ -65,6 +66,11 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       key: '/tasks',
       icon: <CheckSquareOutlined />,
       label: '任务管理',
+    },
+    {
+      key: '/tags',
+      icon: <TagsOutlined />,
+      label: '标签管理',
     },
     {
       key: '/pomodoro',

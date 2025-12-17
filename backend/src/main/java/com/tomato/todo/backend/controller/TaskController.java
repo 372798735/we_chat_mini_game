@@ -30,7 +30,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/tasks")
+@RequestMapping("/tasks")
 @RequiredArgsConstructor
 @Tag(name = "任务管理", description = "任务的增删改查和状态管理")
 @CrossOrigin(origins = {
@@ -112,6 +112,20 @@ public class TaskController {
             @Parameter(hidden = true) @RequestHeader("X-User-Id") Long userId,
             @Valid @ModelAttribute TaskQueryRequest request) {
         log.info("查询任务列表，用户ID: {}", userId);
+
+        IPage<TaskResponse> response = taskService.getTasks(userId, request);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    /**
+     * 搜索任务列表（支持复杂查询条件，包括标签数组）
+     */
+    @PostMapping("/search")
+    @Operation(summary = "搜索任务列表", description = "支持复杂查询条件的任务列表搜索，包括标签数组过滤")
+    public ResponseEntity<ApiResponse<IPage<TaskResponse>>> searchTasks(
+            @Parameter(hidden = true) @RequestHeader("X-User-Id") Long userId,
+            @Valid @RequestBody TaskQueryRequest request) {
+        log.info("搜索任务列表，用户ID: {}", userId);
 
         IPage<TaskResponse> response = taskService.getTasks(userId, request);
         return ResponseEntity.ok(ApiResponse.success(response));

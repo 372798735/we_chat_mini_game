@@ -35,6 +35,9 @@ public class Task {
     @TableField("description")
     private String description;
 
+    @TableField("summary")
+    private String summary;
+
     @TableField("estimated_duration")
     private Integer estimatedDuration;
 

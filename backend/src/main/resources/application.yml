@@ -19,12 +19,21 @@ spring:
       connection-timeout: 20000
       pool-name: TomatoTodoHikariCP
 
-# Jackson配置
+# HTTP编码配置
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+
+  # Jackson配置
   jackson:
     time-zone: Asia/Shanghai
     date-format: yyyy-MM-dd HH:mm:ss
     serialization:
       write-dates-as-timestamps: false
+    default-property-inclusion: non_null
+    charset: UTF-8
 
   # Flyway数据库迁移
   flyway:

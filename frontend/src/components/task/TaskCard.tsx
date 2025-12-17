@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   Card,
   Button,
@@ -23,6 +23,8 @@ import 'dayjs/locale/zh-cn';
 
 import { Card as CustomCard, Button as CustomButton } from '../common';
 import type { Task, TaskPriority, TaskStatus } from '../../types/task';
+import type { Tag as TagType } from '../../types/dict';
+import dictApi from '../../api/dict';
 import './TaskCard.css';
 
 dayjs.extend(relativeTime);
@@ -52,6 +54,26 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   onDelete,
 }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [allTags, setAllTags] = useState<TagType[]>([]);
+
+  // 加载标签数据
+  React.useEffect(() => {
+    const loadTags = async () => {
+      try {
+        const tags = await dictApi.getTags();
+        setAllTags(tags);
+      } catch (error) {
+        console.error('加载标签失败:', error);
+      }
+    };
+    loadTags();
+  }, []);
+
+  // 获取标签颜色
+  const getTagColor = (tagName: string) => {
+    const tag = allTags.find(t => t.name === tagName.trim());
+    return tag?.color || '#108ee9'; // 默认颜色
+  };
 
   const getPriorityColor = (priority: TaskPriority) => {
     switch (priority) {
@@ -168,8 +190,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         break;
     }
 
-    // 如果任务已完成或取消，添加重新开始按钮
-    if (task.status === 'completed' || task.status === 'cancelled') {
+    // 已完成的任务不能重新开始番茄钟
+    // 如果任务取消，可以重新开始按钮
+    if (task.status === 'cancelled') {
       buttons.push(
         <CustomButton
           key="restart"
@@ -240,9 +263,11 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             <div className="task-card-title-section">
               <div className="task-card-title">
                 {getStatusIcon(task.status)}
-                <span className={task.status === 'completed' ? 'completed-title' : ''}>
-                  {task.title}
-                </span>
+                <Tooltip title={task.title} placement="top">
+                  <span className={`task-title-text ${task.status === 'completed' ? 'completed-title' : ''}`}>
+                    {task.title}
+                  </span>
+                </Tooltip>
               </div>
               <div className="task-card-meta">
                 <Tag color={getPriorityColor(task.priority)}>
@@ -267,7 +292,11 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
           {task.description && (
             <div className="task-card-description">
-              {task.description}
+              <Tooltip title={task.description} placement="top">
+                <div className="task-description-text">
+                  {task.description}
+                </div>
+              </Tooltip>
             </div>
           )}
 
@@ -296,11 +325,22 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
           {task.tags && (
             <div className="task-tags">
-              {(Array.isArray(task.tags) ? task.tags : []).map((tag, index) => (
-                <Tag key={index}>
-                  {tag.trim()}
-                </Tag>
-              ))}
+              {(Array.isArray(task.tags) ? task.tags : task.tags.split(','))
+                .filter(tag => tag && tag.trim() !== '')
+                .map((tag, index) => (
+                  <Tag
+                    key={index}
+                    color={getTagColor(tag)}
+                    style={{
+                      border: `1px solid ${getTagColor(tag)}20`,
+                      backgroundColor: `${getTagColor(tag)}10`,
+                      color: getTagColor(tag),
+                      fontWeight: 500
+                    }}
+                  >
+                    {tag.trim()}
+                  </Tag>
+                ))}
             </div>
           )}
 
@@ -327,5 +367,66 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     </>
   );
 };
+
+// 添加CSS样式
+const style = document.createElement('style');
+style.textContent = `
+  .task-title-text {
+    display: inline-block;
+    max-width: calc(100% - 24px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+  }
+
+  .task-description-text {
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+  }
+
+  .task-description-text:hover {
+    white-space: normal;
+    word-break: break-all;
+  }
+
+  .task-tags {
+    margin: 8px 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .task-tags .ant-tag {
+    margin: 0;
+    padding: 2px 8px;
+    font-size: 12px;
+    line-height: 1.2;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    cursor: default;
+  }
+
+  .task-tags .ant-tag:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .completed-title {
+    text-decoration: line-through;
+    color: #8c8c8c;
+  }
+`;
+
+// 确保样式只添加一次
+if (!document.getElementById('task-card-styles')) {
+  style.id = 'task-card-styles';
+  document.head.appendChild(style);
+}
 
 export default TaskCard;

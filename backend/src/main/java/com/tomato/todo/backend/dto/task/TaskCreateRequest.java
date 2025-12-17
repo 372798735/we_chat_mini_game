@@ -23,6 +23,9 @@ public class TaskCreateRequest {
     @Size(max = 500, message = "任务描述长度不能超过500个字符")
     private String description;
 
+    @Size(max = 1000, message = "任务总结长度不能超过1000个字符")
+    private String summary;
+
     @NotNull(message = "预计时长不能为空")
     @Min(value = 1, message = "预计时长至少1分钟")
     @Max(value = 480, message = "预计时长不能超过480分钟")

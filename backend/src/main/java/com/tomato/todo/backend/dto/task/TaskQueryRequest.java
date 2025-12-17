@@ -3,6 +3,8 @@ package com.tomato.todo.backend.dto.task;
 import com.tomato.todo.backend.entity.Task;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 任务查询请求DTO
  *
@@ -46,6 +48,44 @@ public class TaskQueryRequest {
      * 搜索关键词
      */
     private String keyword;
+
+    /**
+     * 标签ID列表
+     */
+    private List<Long> tagIds;
+
+    /**
+     * 标签名称列表（支持字符串搜索）
+     */
+    private List<String> tagNames;
+
+    /**
+     * 设置标签ID列表（处理前端传来的tags参数）
+     */
+    public void setTags(List<Long> tags) {
+        this.tagIds = tags;
+    }
+
+    /**
+     * 获取标签ID列表（处理前端传来的tags参数）
+     */
+    public List<Long> getTags() {
+        return this.tagIds;
+    }
+
+    /**
+     * 设置标签名称列表
+     */
+    public void setTagNames(List<String> tagNames) {
+        this.tagNames = tagNames;
+    }
+
+    /**
+     * 获取标签名称列表
+     */
+    public List<String> getTagNames() {
+        return this.tagNames;
+    }
 
     /**
      * 是否只查询今日任务

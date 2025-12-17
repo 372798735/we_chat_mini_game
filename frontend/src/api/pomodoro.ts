@@ -18,18 +18,12 @@ export interface PomodoroSession {
 
 // 番茄钟统计接口
 export interface PomodoroStatistics {
-  todayFocusTime: number; // 今日专注时间（分钟）
-  completedSessions: number; // 完成的番茄钟数量
-  totalSessions: number; // 总番茄钟数量
-  interruptionCount: number; // 中断次数
-  currentStreak: number; // 连续天数
-  weeklySessions: Array<{
-    date: string;
-    completedSessions: number;
-    totalFocusTime: number;
-  }>;
-  dailyAverage: number; // 日均专注时间
-  completionRate: number; // 完成率
+  totalPomodoros: number; // 总番茄钟数量
+  totalWork: number; // 完成的工作番茄钟数量
+  totalShortBreak: number; // 短休息数量
+  totalLongBreak: number; // 长休息数量
+  totalFocusMinutes: number; // 今日专注时间（分钟）
+  totalFocusHours: number; // 今日专注时间（小时）
 }
 
 // 番茄钟设置接口
@@ -75,7 +69,7 @@ export const pomodoroApi = {
     actualDuration: number;
     notes?: string;
   }) => {
-    return Request.patch(`/pomodoro/${sessionId}/stop`, data);
+    return Request.post(`/pomodoro/${sessionId}/stop`, data);
   },
 
   // 停止番茄钟会话
@@ -83,7 +77,7 @@ export const pomodoroApi = {
     actualDuration: number;
     reason?: string;
   }) => {
-    return Request.patch(`/pomodoro/${sessionId}/stop`, data);
+    return Request.post(`/pomodoro/${sessionId}/stop`, data);
   },
 
   // 暂停番茄钟会话（暂时不实现）

@@ -6,17 +6,19 @@ import {
   Select,
   DatePicker,
   InputNumber,
-  Switch,
   Button,
   Space,
   message,
   Row,
   Col,
   Divider,
+  Tag as AntTag,
 } from 'antd';
 import { PlusOutlined, MinusOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import type { Task, TaskPriority, TaskStatus } from '../../types/task';
+import dictApi from '../../api/dict';
+import type { Tag } from '../../types/dict';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -38,55 +40,81 @@ const TaskCreateForm: React.FC<TaskCreateFormProps> = ({
   loading = false,
 }) => {
   const [form] = Form.useForm();
-  const [isRecurring, setIsRecurring] = useState(false);
+  const [availableTags, setAvailableTags] = useState<Tag[]>([]);
+
+  // 加载标签列表
+  const loadTags = async () => {
+    try {
+      const tags = await dictApi.getTags();
+      setAvailableTags(tags);
+    } catch (error) {
+      console.error('加载标签失败:', error);
+    }
+  };
 
   // 初始化表单数据
   React.useEffect(() => {
     if (visible) {
-      if (task) {
-        // 编辑模式
-        const tagsArray = task.tags ? (typeof task.tags === 'string' ? task.tags.split(',').filter(t => t.trim()) : task.tags) : [];
-        form.setFieldsValue({
-          title: task.title,
-          description: task.description,
-          priority: task.priority,
-          status: task.status,
-          estimatedDuration: task.estimatedDuration,
-          dueDate: task.dueDate ? dayjs(task.dueDate) : null,
-          isRecurring: task.isRecurring,
-          sortOrder: task.sortOrder,
-          tags: tagsArray,
-        });
-        setTags(tagsArray); // Also update the local tags state
-        setIsRecurring(task.isRecurring || false);
-      } else {
-        // 创建模式
-        form.setFieldsValue({
-          priority: 'medium',
-          status: 'pending',
-          estimatedDuration: 25,
-          isRecurring: false,
-          sortOrder: 1,
-          tags: undefined, // 明确设置为 undefined
-        });
-        setTags([]); // Reset tags state
-        setIsRecurring(false);
-      }
+      loadTags();
     }
-  }, [visible, task, form]);
+  }, [visible]);
+
+  // 初始化表单字段值
+  React.useEffect(() => {
+    if (task && visible) {
+      // 编辑模式 - 将标签字符串转换为标签ID数组
+      const selectedTagIds = task.tags ?
+        task.tags.split(',')
+          .map(tagName => tagName.trim())
+          .filter(tagName => {
+            const tag = availableTags.find(t => t.name === tagName);
+            return tag ? tag.id : null;
+          })
+          .filter(id => id !== null) : [];
+
+      form.setFieldsValue({
+        title: task.title,
+        description: task.description,
+        summary: task.summary,
+        priority: task.priority,
+        status: task.status,
+        estimatedDuration: task.estimatedDuration,
+        dueDate: task.dueDate ? dayjs(task.dueDate) : null,
+        sortOrder: task.sortOrder,
+        tagIds: selectedTagIds,
+      });
+    } else if (visible) {
+      // 创建模式
+      form.setFieldsValue({
+        priority: 'medium',
+        status: 'pending',
+        estimatedDuration: 25,
+        sortOrder: 1,
+        tagIds: [],
+      });
+    }
+  }, [visible, task, form, availableTags]);
 
   // 处理表单提交
   const handleSubmit = async (values: any) => {
     try {
       console.log('Form submit values:', values);
-      console.log('Tags value type:', typeof values.tags, 'Tags value:', values.tags);
+      console.log('Selected tagIds:', values.tagIds);
+
+      // 将选中的标签ID转换为标签名称字符串，以便与后端兼容
+      const selectedTagNames = values.tagIds && values.tagIds.length > 0
+        ? values.tagIds.map(tagId => {
+            const tag = availableTags.find(t => t.id === tagId);
+            return tag ? tag.name : '';
+          }).filter(name => name.trim()).join(',')
+        : null;
 
       const formData = {
         ...values,
         dueDate: values.dueDate ? values.dueDate.toISOString() : null,
         estimatedDuration: values.estimatedDuration || 25,
-        // Convert tags array to comma-separated string for backend compatibility
-        tags: values.tags && values.tags.length > 0 ? values.tags.join(',') : null,
+        // 将标签名称字符串传给后端，保持现有的数据格式
+        tags: selectedTagNames,
         userId: 1, // 暂时写死，后续从用户信息中获取
       };
 
@@ -94,32 +122,12 @@ const TaskCreateForm: React.FC<TaskCreateFormProps> = ({
 
       await onSubmit(formData);
       form.resetFields();
-      setTags([]); // Reset tags state
-      setIsRecurring(false);
     } catch (error) {
       console.error('表单提交失败:', error);
     }
   };
 
-  // 添加标签
-  const [tags, setTags] = useState<string[]>([]);
-  const [inputTag, setInputTag] = useState('');
-
-  const handleAddTag = () => {
-    if (inputTag && !tags.includes(inputTag)) {
-      const newTags = [...tags, inputTag];
-      setTags(newTags);
-      form.setFieldsValue({ tags: newTags });
-      setInputTag('');
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    const newTags = tags.filter(tag => tag !== tagToRemove);
-    setTags(newTags);
-    form.setFieldsValue({ tags: newTags });
-  };
-
+  
   return (
     <Modal
       title={task ? '编辑任务' : '创建任务'}
@@ -137,8 +145,8 @@ const TaskCreateForm: React.FC<TaskCreateFormProps> = ({
           priority: 'medium',
           status: 'pending',
           estimatedDuration: 25,
-          isRecurring: false,
           sortOrder: 1,
+          tagIds: [],
         }}
       >
         <Row gutter={[16, 16]}>
@@ -166,6 +174,21 @@ const TaskCreateForm: React.FC<TaskCreateFormProps> = ({
                 placeholder="请输入任务描述（可选）"
                 showCount
                 maxLength={500}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col span={24}>
+            <Form.Item
+              label="总结"
+              name="summary"
+              rules={[{ max: 1000, message: '总结最多1000个字符' }]}
+            >
+              <TextArea
+                rows={3}
+                placeholder="请输入任务完成后的总结（可选）"
+                showCount
+                maxLength={1000}
               />
             </Form.Item>
           </Col>
@@ -243,53 +266,32 @@ const TaskCreateForm: React.FC<TaskCreateFormProps> = ({
             </Form.Item>
           </Col>
 
-          <Col xs={24} sm={12}>
-            <Form.Item
-              label="是否循环任务"
-              name="isRecurring"
-              valuePropName="checked"
-            >
-              <Switch
-                onChange={setIsRecurring}
-              />
-            </Form.Item>
-          </Col>
-
-          {/* 标签管理 */}
+  
+          {/* 标签选择 */}
           <Col span={24}>
-            <Form.Item label="标签" name="tags">
-              <Space direction="vertical" style={{ width: '100%' }}>
-                <Space.Compact style={{ width: '100%' }}>
-                  <Input
-                    placeholder="输入标签名称"
-                    value={inputTag}
-                    onChange={(e) => setInputTag(e.target.value)}
-                    onPressEnter={handleAddTag}
-                  />
-                  <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={handleAddTag}
-                    disabled={!inputTag.trim()}
-                  />
-                </Space.Compact>
-
-                {tags.length > 0 && (
-                  <div>
-                    {tags.map((tag, index) => (
-                      <Button
-                        key={index}
-                        size="small"
-                        style={{ margin: '4px 4px 0 0' }}
-                        onClose={() => handleRemoveTag(tag)}
-                      >
-                        {tag}
-                        <MinusOutlined style={{ marginLeft: 4 }} />
-                      </Button>
-                    ))}
-                  </div>
-                )}
-              </Space>
+            <Form.Item
+              label="标签"
+              name="tagIds"
+              help="选择任务的标签，可以选择多个标签"
+            >
+              <Select
+                mode="multiple"
+                placeholder="请选择标签"
+                allowClear
+                style={{ width: '100%' }}
+                optionLabelProp="label"
+              >
+                {availableTags.map(tag => (
+                  <Option key={tag.id} value={tag.id} label={tag.name}>
+                    <Space>
+                      <AntTag color={tag.color || '#1890ff'}>
+                        {tag.name}
+                      </AntTag>
+                      <span>{tag.name}</span>
+                    </Space>
+                  </Option>
+                ))}
+              </Select>
             </Form.Item>
           </Col>
         </Row>

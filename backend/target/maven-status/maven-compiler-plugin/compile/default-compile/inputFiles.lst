@@ -47,6 +47,7 @@ D:\project\we_chat_mini_game\backend\src\main\java\com\tomato\todo\backend\dto\t
 D:\project\we_chat_mini_game\backend\src\main\java\com\tomato\todo\backend\service\TaskService.java
 D:\project\we_chat_mini_game\backend\src\main\java\com\tomato\todo\backend\repository\StatisticsRepository.java
 D:\project\we_chat_mini_game\backend\src\main\java\com\tomato\todo\backend\dto\statistics\StatisticsResponse.java
+D:\project\we_chat_mini_game\backend\src\main\java\com\tomato\todo\backend\config\JacksonConfig.java
 D:\project\we_chat_mini_game\backend\src\main\java\com\tomato\todo\backend\dto\dict\TagResponse.java
 D:\project\we_chat_mini_game\backend\src\main\java\com\tomato\todo\backend\controller\TestController.java
 D:\project\we_chat_mini_game\backend\src\main\java\com\tomato\todo\backend\dto\auth\RegisterRequest.java

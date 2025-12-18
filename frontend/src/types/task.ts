@@ -29,6 +29,8 @@ export interface Task {
   status: TaskStatus | 'pending' | 'in_progress' | 'completed' | 'paused' | 'cancelled';
   dueDate?: string; // ISO 8601 格式
   reminderTime?: string; // ISO 8601 格式
+  startTime?: string; // 任务开始时间，ISO 8601 格式
+  endTime?: string; // 任务结束时间，ISO 8601 格式
   tags?: string[]; // 标签数组
   sortOrder?: number;
   parentTaskId?: number;
@@ -50,6 +52,8 @@ export interface TaskCreateRequest {
   status?: TaskStatus;
   dueDate?: string;
   reminderTime?: string;
+  startTime?: string; // 任务开始时间，ISO 8601 格式
+  endTime?: string; // 任务结束时间，ISO 8601 格式
   tags?: string;
   sortOrder?: number;
   parentTaskId?: number;
@@ -68,6 +72,8 @@ export interface TaskUpdateRequest {
   status?: TaskStatus;
   dueDate?: string;
   reminderTime?: string;
+  startTime?: string; // 任务开始时间，ISO 8601 格式
+  endTime?: string; // 任务结束时间，ISO 8601 格式
   tags?: string;
   sortOrder?: number;
   parentTaskId?: number;

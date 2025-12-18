@@ -30,7 +30,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/pomodoro")
+@RequestMapping("/pomodoro")
 @RequiredArgsConstructor
 @Tag(name = "番茄钟管理", description = "番茄钟计时器相关功能")
 @CrossOrigin(origins = {

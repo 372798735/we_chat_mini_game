@@ -83,11 +83,22 @@ export const TaskList: React.FC<TaskListProps> = () => {
 
     // 如果选择了特定日期，只显示该日期的任务
     const filteredTasks = selectedDate
-      ? tasks.filter(task => dayjs(task.createdAt).format('YYYY-MM-DD') === selectedDate)
+      ? tasks.filter(task => {
+          // 如果任务有截止日期，按截止日期过滤
+          if (task.dueDate) {
+            return dayjs(task.dueDate).format('YYYY-MM-DD') === selectedDate;
+          }
+          // 如果没有截止日期，按创建日期过滤
+          return dayjs(task.createdAt).format('YYYY-MM-DD') === selectedDate;
+        })
       : tasks;
 
     filteredTasks.forEach(task => {
-      const date = dayjs(task.createdAt).format('YYYY-MM-DD');
+      // 优先使用截止日期，如果没有截止日期则使用创建日期
+      const date = task.dueDate
+        ? dayjs(task.dueDate).format('YYYY-MM-DD')
+        : dayjs(task.createdAt).format('YYYY-MM-DD');
+
       if (!groups[date]) {
         groups[date] = [];
       }
@@ -228,7 +239,10 @@ export const TaskList: React.FC<TaskListProps> = () => {
   const getTaskDataForCalendar = () => {
     const taskData: { [key: string]: number } = {};
     tasks.forEach(task => {
-      const date = dayjs(task.createdAt).format('YYYY-MM-DD');
+      // 优先使用截止日期，如果没有截止日期则使用创建日期
+      const date = task.dueDate
+        ? dayjs(task.dueDate).format('YYYY-MM-DD')
+        : dayjs(task.createdAt).format('YYYY-MM-DD');
       taskData[date] = (taskData[date] || 0) + 1;
     });
     return taskData;
@@ -588,6 +602,7 @@ export const TaskList: React.FC<TaskListProps> = () => {
         visible={showForm}
         task={selectedTask}
         onSubmit={handleTaskSubmit}
+        selectedDate={selectedDate}
         onCancel={() => {
           setShowForm(false);
           setSelectedTask(null);

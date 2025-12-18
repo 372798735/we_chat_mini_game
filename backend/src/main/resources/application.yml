@@ -32,8 +32,13 @@ spring:
     date-format: yyyy-MM-dd HH:mm:ss
     serialization:
       write-dates-as-timestamps: false
+      write-date-timestamps-as-nanoseconds: false
+    deserialization:
+      fail-on-unknown-properties: false
+      accept-empty-string-as-null-object: true
     default-property-inclusion: non_null
     charset: UTF-8
+    locale: zh_CN
 
   # Flyway数据库迁移
   flyway:

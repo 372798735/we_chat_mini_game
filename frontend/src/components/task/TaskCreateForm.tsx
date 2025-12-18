@@ -30,6 +30,7 @@ interface TaskCreateFormProps {
   onSubmit: (values: any) => Promise<void>;
   onCancel: () => void;
   loading?: boolean;
+  selectedDate?: string | null;
 }
 
 const TaskCreateForm: React.FC<TaskCreateFormProps> = ({
@@ -38,6 +39,7 @@ const TaskCreateForm: React.FC<TaskCreateFormProps> = ({
   onSubmit,
   onCancel,
   loading = false,
+  selectedDate,
 }) => {
   const [form] = Form.useForm();
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
@@ -61,39 +63,49 @@ const TaskCreateForm: React.FC<TaskCreateFormProps> = ({
 
   // 初始化表单字段值
   React.useEffect(() => {
-    if (task && visible) {
-      // 编辑模式 - 将标签字符串转换为标签ID数组
-      const selectedTagIds = task.tags ?
-        task.tags.split(',')
-          .map(tagName => tagName.trim())
-          .filter(tagName => {
-            const tag = availableTags.find(t => t.name === tagName);
-            return tag ? tag.id : null;
-          })
-          .filter(id => id !== null) : [];
+    if (visible) {
+      if (task && task.id) {
+        // 编辑模式 - 将标签字符串转换为标签ID数组
+        const selectedTagIds = task.tags ?
+          task.tags.split(',')
+            .map(tagName => tagName.trim())
+            .filter(tagName => {
+              const tag = availableTags.find(t => t.name === tagName);
+              return tag ? tag.id : null;
+            })
+            .filter(id => id !== null) : [];
 
-      form.setFieldsValue({
-        title: task.title,
-        description: task.description,
-        summary: task.summary,
-        priority: task.priority,
-        status: task.status,
-        estimatedDuration: task.estimatedDuration,
-        dueDate: task.dueDate ? dayjs(task.dueDate) : null,
-        sortOrder: task.sortOrder,
-        tagIds: selectedTagIds,
-      });
-    } else if (visible) {
-      // 创建模式
-      form.setFieldsValue({
-        priority: 'medium',
-        status: 'pending',
-        estimatedDuration: 25,
-        sortOrder: 1,
-        tagIds: [],
-      });
+        form.setFieldsValue({
+          title: task.title,
+          description: task.description,
+          summary: task.summary,
+          priority: task.priority,
+          status: task.status,
+          estimatedDuration: task.estimatedDuration,
+          dueDate: task.dueDate ? dayjs(task.dueDate) : null,
+          startTime: task.startTime ? dayjs(task.startTime) : null,
+          endTime: task.endTime ? dayjs(task.endTime) : null,
+          sortOrder: task.sortOrder,
+          tagIds: selectedTagIds,
+        });
+      } else {
+        // 创建模式 - 重置表单为初始值
+        form.resetFields();
+        form.setFieldsValue({
+          priority: 'medium',
+          status: 'pending',
+          sortOrder: 1,
+          tagIds: [],
+          // 如果有选择的日期，设置开始时间和结束时间
+          startTime: selectedDate ? dayjs(selectedDate).hour(9).minute(0).second(0) : dayjs().hour(9).minute(0).second(0),
+          endTime: selectedDate ? dayjs(selectedDate).hour(10).minute(0).second(0) : dayjs().hour(10).minute(0).second(0),
+          duration: 60, // 默认1小时
+          // 如果有选择的日期，设置为截止日期，默认设置为选择日期的 18:00
+          dueDate: selectedDate ? dayjs(selectedDate).hour(18).minute(0).second(0) : dayjs().hour(18).minute(0).second(0),
+        });
+      }
     }
-  }, [visible, task, form, availableTags]);
+  }, [visible, task, form, availableTags, selectedDate]);
 
   // 处理表单提交
   const handleSubmit = async (values: any) => {
@@ -112,7 +124,9 @@ const TaskCreateForm: React.FC<TaskCreateFormProps> = ({
       const formData = {
         ...values,
         dueDate: values.dueDate ? values.dueDate.toISOString() : null,
-        estimatedDuration: values.estimatedDuration || 25,
+        startTime: values.startTime ? values.startTime.toISOString() : null,
+        endTime: values.endTime ? values.endTime.toISOString() : null,
+        estimatedDuration: values.duration || 25,
         // 将标签名称字符串传给后端，保持现有的数据格式
         tags: selectedTagNames,
         userId: 1, // 暂时写死，后续从用户信息中获取
@@ -130,6 +144,7 @@ const TaskCreateForm: React.FC<TaskCreateFormProps> = ({
   
   return (
     <Modal
+      key={task?.id || 'new'}
       title={task ? '编辑任务' : '创建任务'}
       open={visible}
       onCancel={onCancel}
@@ -225,15 +240,66 @@ const TaskCreateForm: React.FC<TaskCreateFormProps> = ({
 
           <Col xs={24} sm={12}>
             <Form.Item
-              label="预计时长（分钟）"
-              name="estimatedDuration"
-              rules={[{ required: true, message: '请输入预计时长' }]}
+              label="开始时间"
+              name="startTime"
+              rules={[{ required: true, message: '请选择开始时间' }]}
+            >
+              <DatePicker
+                showTime
+                placeholder="选择开始时间"
+                style={{ width: '100%' }}
+                onChange={(startTime) => {
+                  const formValues = form.getFieldsValue();
+                  if (startTime && formValues.endTime) {
+                    const duration = dayjs(formValues.endTime).diff(startTime, 'minute');
+                    if (duration > 0) {
+                      form.setFieldValue('duration', duration);
+                    }
+                  }
+                }}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col xs={24} sm={12}>
+            <Form.Item
+              label="结束时间"
+              name="endTime"
+              rules={[{ required: true, message: '请选择结束时间' }]}
+            >
+              <DatePicker
+                showTime
+                placeholder="选择结束时间"
+                style={{ width: '100%' }}
+                disabledDate={(current) => {
+                  const startTime = form.getFieldValue('startTime');
+                  return startTime ? (current && current < startTime.startOf('day')) : (current && current < dayjs().startOf('day'));
+                }}
+                onChange={(endTime) => {
+                  const startTime = form.getFieldValue('startTime');
+                  if (startTime && endTime) {
+                    const duration = dayjs(endTime).diff(startTime, 'minute');
+                    if (duration > 0) {
+                      form.setFieldValue('duration', duration);
+                    }
+                  }
+                }}
+              />
+            </Form.Item>
+          </Col>
+
+          <Col xs={24} sm={12}>
+            <Form.Item
+              label="任务时长（分钟）"
+              name="duration"
             >
               <InputNumber
                 min={1}
                 max={480}
-                placeholder="25"
+                placeholder="自动计算"
                 style={{ width: '100%' }}
+                readOnly
+                addonAfter="分钟"
               />
             </Form.Item>
           </Col>

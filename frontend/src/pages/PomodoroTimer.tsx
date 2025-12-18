@@ -77,6 +77,7 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [showTaskSelect, setShowTaskSelect] = useState(false);
   const [animationKey, setAnimationKey] = useState(0); // 用于触发动画
+  const [timeChangeKey, setTimeChangeKey] = useState(0); // 用于时间变化跳动动画
 
   // 计时器设置
   const [settings, setSettings] = useState({
@@ -111,6 +112,31 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = () => {
       }
     };
   }, []);
+
+  // 当任务改变时，根据任务时间设置番茄钟时长
+  useEffect(() => {
+    if (currentTask && currentTask.startTime && currentTask.endTime && pomodoroType === 'work') {
+      // 如果任务有开始和结束时间，使用任务的持续时间
+      const taskDuration = dayjs(currentTask.endTime).diff(currentTask.startTime, 'minute');
+      if (taskDuration > 0) {
+        const newTotalTime = taskDuration * 60; // 转换为秒
+        setTotalTime(newTotalTime);
+        setCurrentTime(newTotalTime);
+        console.log(`根据任务时间设置番茄钟: ${taskDuration}分钟`);
+      }
+    } else if (currentTask && currentTask.estimatedDuration && pomodoroType === 'work') {
+      // 如果任务有预计时长，使用预计时长
+      const newTotalTime = currentTask.estimatedDuration * 60;
+      setTotalTime(newTotalTime);
+      setCurrentTime(newTotalTime);
+      console.log(`根据任务预计时长设置番茄钟: ${currentTask.estimatedDuration}分钟`);
+    } else {
+      // 否则使用默认设置
+      const defaultTime = settings.workDuration * 60;
+      setTotalTime(defaultTime);
+      setCurrentTime(defaultTime);
+    }
+  }, [currentTask, pomodoroType, settings.workDuration]);
 
   // 加载今日数据
   const loadTodayData = async () => {
@@ -147,7 +173,10 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = () => {
             handleTimerComplete();
             return 0;
           }
-          return prev - 1;
+          const newTime = prev - 1;
+          // 每秒触发时间变化跳动动画
+          setTimeChangeKey(k => k + 1);
+          return newTime;
         });
         // 触发动画帧更新
         setAnimationKey(prev => prev + 1);
@@ -208,10 +237,14 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = () => {
       // 对于非工作类型，使用默认任务ID 1；工作类型必须有任务
       const taskId = currentTask?.id || 1;
 
+      // 计算计划时长，限制在60分钟以内
+      const calculatedDuration = Math.floor(totalTime / 60);
+      const plannedDuration = Math.min(calculatedDuration, 60); // 最大60分钟
+
       const sessionData = {
         taskId: taskId,
         type: sessionType,
-        plannedDuration: Math.floor(totalTime / 60),
+        plannedDuration: plannedDuration,
         notes: currentTask ? `专注任务: ${currentTask.title}` :
                 pomodoroType === 'work' ? '工作时间' :
                 pomodoroType === 'shortBreak' ? '短休息' : '长休息'
@@ -409,6 +442,26 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = () => {
     return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+  // 根据时间长度获取对应的CSS类名
+  const getTimeDisplayClass = (seconds: number) => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+
+    if (hours > 0) {
+      // 有小时的显示 (HH:MM:SS)，使用最小字体
+      return 'very-long-time';
+    } else if (minutes >= 100) {
+      // 分钟数很大 (MM:SS格式但分钟超过100)，使用小字体
+      return 'long-time';
+    } else if (minutes >= 10) {
+      // 分钟数较大 (MM:SS格式且分钟两位数)，使用中等字体
+      return 'medium-time';
+    } else {
+      // 普通时间显示，使用大字体
+      return 'short-time';
+    }
+  };
+
   // 计算动画相关值
   const totalSeconds = totalTime;
   const completedSeconds = totalTime - currentTime;
@@ -468,7 +521,7 @@ export const PomodoroTimer: React.FC<PomodoroTimerProps> = () => {
                   percent={progress}
                   format={() => (
                     <div className="timer-text">
-                      <div className="time-value" key={animationKey}>
+                      <div className={`time-value ${getTimeDisplayClass(currentTime)} ${isRunning ? 'time-change' : ''}`} key={`${animationKey}-${timeChangeKey}`}>
                         {formatTime(currentTime)}
                       </div>
                       <div className="time-label">

@@ -49,6 +49,7 @@ com\tomato\todo\backend\controller\TaskController$TaskStatistics.class
 com\tomato\todo\backend\entity\Task$Priority.class
 com\tomato\todo\backend\controller\PomodoroController$ApiResponse.class
 com\tomato\todo\backend\service\PomodoroService$PomodoroStatistics.class
+com\tomato\todo\backend\config\JacksonConfig.class
 com\tomato\todo\backend\dto\statistics\StatisticsResponse$TotalStatistics.class
 com\tomato\todo\backend\entity\User.class
 com\tomato\todo\backend\entity\TaskSummary$Difficulty.class
@@ -65,6 +66,7 @@ com\tomato\todo\backend\repository\TaskRepository.class
 com\tomato\todo\backend\controller\StatisticsController$1.class
 com\tomato\todo\backend\dto\statistics\StatisticsResponse$PeriodStatistics.class
 com\tomato\todo\backend\repository\UserRepository.class
+com\tomato\todo\backend\config\JacksonConfig$FlexibleLocalDateTimeDeserializer.class
 com\tomato\todo\backend\controller\TaskController.class
 com\tomato\todo\backend\entity\Statistics.class
 com\tomato\todo\backend\repository\StatisticsRepository.class

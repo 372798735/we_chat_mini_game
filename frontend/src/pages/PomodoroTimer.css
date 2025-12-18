@@ -88,6 +88,32 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  /* 动态字体大小调整 */
+  transition: font-size 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+/* 根据时间长度动态调整字体大小 */
+.time-value.short-time {
+  font-size: 72px;
+}
+
+.time-value.medium-time {
+  font-size: 60px;
+  letter-spacing: -1px;
+}
+
+.time-value.long-time {
+  font-size: 48px;
+  letter-spacing: 0px;
+}
+
+.time-value.very-long-time {
+  font-size: 36px;
+  letter-spacing: 0px;
+  line-height: 1.2;
 }
 
 .time-label {
@@ -998,6 +1024,79 @@
   }
   100% {
     transform: scale(1) rotate(0deg);
+  }
+}
+
+/* 时间变化跳动动画 */
+@keyframes timeBounce {
+  0% {
+    transform: scale(1) translateY(0);
+  }
+  10% {
+    transform: scale(1.05) translateY(-2px);
+  }
+  20% {
+    transform: scale(1.1) translateY(-4px);
+  }
+  30% {
+    transform: scale(1.08) translateY(-6px);
+  }
+  40% {
+    transform: scale(1.05) translateY(-4px);
+  }
+  50% {
+    transform: scale(1.02) translateY(-2px);
+  }
+  60% {
+    transform: scale(1) translateY(0);
+  }
+  70% {
+    transform: scale(1.01) translateY(-1px);
+  }
+  80% {
+    transform: scale(1) translateY(0);
+  }
+  90% {
+    transform: scale(1.005) translateY(-0.5px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 时间变化时的脉冲效果 */
+.time-value.time-change {
+  animation: timeChangePulse 0.6s ease-out;
+}
+
+@keyframes timeChangePulse {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  15% {
+    transform: scale(1.15);
+    filter: brightness(1.3);
+  }
+  30% {
+    transform: scale(0.95);
+    filter: brightness(1.1);
+  }
+  45% {
+    transform: scale(1.05);
+    filter: brightness(1.05);
+  }
+  60% {
+    transform: scale(0.98);
+    filter: brightness(1.02);
+  }
+  75% {
+    transform: scale(1.01);
+    filter: brightness(1.01);
+  }
+  100% {
+    transform: scale(1);
+    filter: brightness(1);
   }
 }
 

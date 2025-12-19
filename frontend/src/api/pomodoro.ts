@@ -46,7 +46,7 @@ export const pomodoroApi = {
 
   // 获取本周统计数据
   getWeeklyStatistics: () => {
-    return Request.get<PomodoroStatistics>('/pomodoro/statistics/weekly');
+    return Request.get<PomodoroStatistics>('/statistics/weekly');
   },
 
   // 获取今日会话记录

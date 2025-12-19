@@ -55,6 +55,8 @@ public class TaskService {
         task.setStatus(request.getStatus());
         task.setDueDate(request.getDueDate());
         task.setReminderTime(request.getReminderTime());
+        task.setStartTime(request.getStartTime());
+        task.setEndTime(request.getEndTime());
         task.setTags(request.getTags());
         task.setSortOrder(request.getSortOrder());
         task.setParentTaskId(request.getParentTaskId());
@@ -118,6 +120,12 @@ public class TaskService {
         }
         if (request.getReminderTime() != null) {
             task.setReminderTime(request.getReminderTime());
+        }
+        if (request.getStartTime() != null) {
+            task.setStartTime(request.getStartTime());
+        }
+        if (request.getEndTime() != null) {
+            task.setEndTime(request.getEndTime());
         }
         if (request.getTags() != null) {
             task.setTags(request.getTags());
@@ -340,6 +348,8 @@ public class TaskService {
         response.setStatus(task.getStatus());
         response.setDueDate(task.getDueDate());
         response.setReminderTime(task.getReminderTime());
+        response.setStartTime(task.getStartTime());
+        response.setEndTime(task.getEndTime());
         response.setTags(task.getTags());
         response.setSortOrder(task.getSortOrder());
         response.setParentTaskId(task.getParentTaskId());

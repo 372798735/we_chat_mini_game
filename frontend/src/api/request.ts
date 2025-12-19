@@ -7,7 +7,7 @@ const getApiBaseUrl = () => {
     return process.env.REACT_APP_API_BASE_URL;
   }
   // 如果没有环境变量，使用默认值 - 连接到真正的Spring Boot后端
-  return 'http://localhost:18000/api';
+  return 'http://localhost:18003/api';
 };
 
 const BASE_URL = getApiBaseUrl();

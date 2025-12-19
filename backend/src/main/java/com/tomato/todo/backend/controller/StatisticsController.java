@@ -28,7 +28,7 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
-@RequestMapping("/api/statistics")
+@RequestMapping("/statistics")
 @RequiredArgsConstructor
 @Tag(name = "统计数据管理", description = "数据统计和分析相关功能")
 @CrossOrigin(origins = {

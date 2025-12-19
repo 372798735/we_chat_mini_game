@@ -64,7 +64,7 @@ export const TaskList: React.FC<TaskListProps> = () => {
   const [showForm, setShowForm] = useState(false);
   const [showSummaryForm, setShowSummaryForm] = useState(false);
   const [availableTags, setAvailableTags] = useState<Tag[]>([]);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(dayjs().format('YYYY-MM-DD'));
   const [searchValue, setSearchValue] = useState(keyword);
 
   // 加载标签列表

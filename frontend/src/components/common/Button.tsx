@@ -53,9 +53,7 @@ export const Button: React.FC<ButtonProps> = ({
     const sizeClass = `custom-button-${size}`;
     const widthClass = fullWidth ? 'custom-button-full-width' : '';
 
-    return [baseClass, variantClass, sizeClass, widthClass, className]
-      .filter(Boolean)
-      .join(' ');
+    return [baseClass, variantClass, sizeClass, widthClass, className].filter(Boolean).join(' ');
   };
 
   const getStyle = (): React.CSSProperties => {

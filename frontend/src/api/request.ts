@@ -19,26 +19,8 @@ const axiosInstance: AxiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // 支持跨域凭证
+  withCredentials: false // 支持跨域凭证
 });
-
-// 添加请求拦截器用于调试
-axiosInstance.interceptors.request.use(
-  (config) => {
-    console.log('API Request:', {
-      method: config.method?.toUpperCase(),
-      url: config.url,
-      baseURL: config.baseURL,
-      fullURL: `${config.baseURL}${config.url}`,
-      headers: config.headers,
-    });
-    return config;
-  },
-  (error) => {
-    console.error('Request Error:', error);
-    return Promise.reject(error);
-  }
-);
 
 // 请求拦截器
 axiosInstance.interceptors.request.use(

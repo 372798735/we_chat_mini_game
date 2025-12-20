@@ -22,9 +22,12 @@ import { useNavigate } from 'react-router-dom';
 import DashboardStats from '../components/statistics/DashboardStats';
 import TaskCard from '../components/task/TaskCard';
 import TaskCreateForm from '../components/task/TaskCreateForm';
+import WeeklyChart from '../components/statistics/WeeklyChart';
 import { taskApi } from '../api/task';
+import { statisticsApi } from '../api/statistics';
 import { Loading } from '../components/common';
 import type { Task } from '../types/task';
+import type { DashboardStatistics } from '../api/statistics';
 import './Dashboard.css';
 
 const { Title, Text } = Typography;
@@ -41,7 +44,7 @@ interface DashboardProps {}
 export const Dashboard: React.FC<DashboardProps> = () => {
   const [loading, setLoading] = useState(true);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [statistics, setStatistics] = useState<any>(null);
+  const [statistics, setStatistics] = useState<DashboardStatistics | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [createLoading, setCreateLoading] = useState(false);
@@ -52,32 +55,21 @@ export const Dashboard: React.FC<DashboardProps> = () => {
     const loadDashboardData = async () => {
       setLoading(true);
       try {
-        // 调用API获取任务数据
-        const tasksResponse = await taskApi.getTasks({ pageSize: 5 });
+        // 并行加载任务数据和统计数据
+        const [tasksResponse, statisticsResponse] = await Promise.all([
+          taskApi.getTasks({ pageSize: 5 }),
+          statisticsApi.getDashboardStatistics()
+        ]);
 
+        // 设置任务数据
         if (tasksResponse && tasksResponse.records && Array.isArray(tasksResponse.records)) {
           setTasks(tasksResponse.records);
         }
 
-        // TODO: 添加统计API调用
-        // const statisticsResponse = await api.getDashboardStatistics();
-
-        // 临时统计数据
-        setStatistics({
-          today: {
-            totalTasks: tasksResponse && tasksResponse.records ? tasksResponse.records.length : 0,
-            completedTasks: tasksResponse && tasksResponse.records ? tasksResponse.records.filter((task: Task) => task.status === 'completed').length : 0,
-            totalPomodoros: 12,
-            totalFocusTime: 180,
-            completionRate: tasksResponse && tasksResponse.records && tasksResponse.records.length > 0
-              ? Math.round((tasksResponse.records.filter((task: Task) => task.status === 'completed').length / tasksResponse.records.length) * 100 * 10) / 10
-              : 0,
-          },
-          weekly: [
-            { date: '2024-01-15', completedTasks: 5, totalPomodoros: 8 },
-            { date: '2024-01-16', completedTasks: 3, totalPomodoros: 6 },
-          ],
-        });
+        // 设置统计数据
+        if (statisticsResponse) {
+          setStatistics(statisticsResponse);
+        }
 
       } catch (error) {
         console.error('加载仪表板数据失败:', error);
@@ -99,9 +91,19 @@ export const Dashboard: React.FC<DashboardProps> = () => {
     navigate(`/tasks?action=edit&taskId=${task.id}`);
   };
 
-  const handleTaskDelete = (task: Task) => {
-    // 处理删除逻辑
-    console.log('删除任务:', task);
+  const handleTaskDelete = async (task: Task) => {
+    try {
+      await taskApi.deleteTask(task.id);
+      message.success('任务删除成功');
+      // 重新加载任务列表
+      const response = await taskApi.getTasks({ pageSize: 5 });
+      if (response && response.records && Array.isArray(response.records)) {
+        setTasks(response.records);
+      }
+    } catch (error) {
+      console.error('删除任务失败:', error);
+      message.error('删除任务失败，请重试');
+    }
   };
 
   // 处理创建任务
@@ -246,7 +248,7 @@ export const Dashboard: React.FC<DashboardProps> = () => {
                     <div style={{ textAlign: 'center' }}>
                       <Text type="secondary" style={{ fontSize: '14px' }}>完成率</Text>
                       <Progress
-                        percent={statistics?.today?.completionRate || 0}
+                        percent={Math.round(statistics?.today?.completionRate || 0)}
                         size="small"
                         style={{ marginTop: '8px' }}
                       />
@@ -258,13 +260,11 @@ export const Dashboard: React.FC<DashboardProps> = () => {
 
             {/* 数据统计 */}
             <Col xs={24}>
-              <Card title="本周数据统计" className="dashboard-stats-card">
-                <div style={{ textAlign: 'center', marginTop: '40px' }}>
-                  <Text type="secondary">
-                    暂无数据统计图表，敬请期待...
-                  </Text>
-                </div>
-              </Card>
+              <WeeklyChart
+                data={statistics?.weekly || []}
+                loading={loading}
+                title="本周数据统计"
+              />
             </Col>
           </Row>
         </Col>

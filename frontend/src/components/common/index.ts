@@ -14,6 +14,7 @@ export {
   TableLoading,
   default as CustomLoading
 } from './Loading';
+export { default as ThemeToggle } from './ThemeToggle';
 
 // 导出类型定义
 export type { ButtonProps } from './Button';

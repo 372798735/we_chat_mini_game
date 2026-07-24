@@ -2,6 +2,7 @@ import React, { useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAppDispatch, useAppSelector } from '@/hooks/redux'
 import { initializeAuth } from '@/store/slices/authSlice'
+import { initializeApp } from '@/store/slices/appSlice'
 
 // 页面组件
 import Dashboard from './pages/Dashboard'
@@ -37,6 +38,15 @@ function App() {
   const [appLoading, setAppLoading] = React.useState(true)
   const dispatch = useAppDispatch()
   const { isAuthenticated, token } = useAppSelector((state) => state.auth)
+  const { theme } = useAppSelector((state) => state.app)
+
+  // 应用主题到document元素
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    // 添加主题类名到body
+    document.body.className = document.body.className.replace(/theme-\w+/g, '')
+    document.body.classList.add(`theme-${theme}`)
+  }, [theme])
 
   useEffect(() => {
     // 应用初始化
@@ -44,6 +54,9 @@ function App() {
       try {
         // 初始化认证状态（从localStorage恢复）
         dispatch(initializeAuth())
+
+        // 初始化应用设置（包括主题）
+        dispatch(initializeApp())
 
         console.log('应用初始化完成')
       } catch (error) {

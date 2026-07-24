@@ -1,13 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import {
-  Card,
-  Button,
-  Tag,
-  Tooltip,
-  Dropdown,
-  Space,
-  Modal,
-} from 'antd';
+import { Card, Button, Tag, Tooltip, Dropdown, Space, Modal } from 'antd';
 import { CardContent } from '../common';
 import {
   MoreOutlined,
@@ -131,7 +123,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
     return `${mins}分钟`;
   };
 
-  const isOverdue = task.dueDate && dayjs(task.dueDate).isBefore(dayjs()) && task.status !== 'completed';
+  const isOverdue =
+    task.dueDate && dayjs(task.dueDate).isBefore(dayjs()) && task.status !== 'completed';
 
   const getActionButtons = () => {
     const buttons = [];
@@ -208,12 +201,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
     // 始终添加编辑按钮
     buttons.push(
-      <CustomButton
-        key="edit"
-        variant="secondary"
-        size="small"
-        onClick={() => onEdit?.(task)}
-      >
+      <CustomButton key="edit" variant="secondary" size="small" onClick={() => onEdit?.(task)}>
         编辑
       </CustomButton>
     );
@@ -264,7 +252,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               <div className="task-card-title">
                 {getStatusIcon(task.status)}
                 <Tooltip title={task.title} placement="top">
-                  <span className={`task-title-text ${task.status === 'completed' ? 'completed-title' : ''}`}>
+                  <span
+                    className={`task-title-text ${task.status === 'completed' ? 'completed-title' : ''}`}
+                  >
                     {task.title}
                   </span>
                 </Tooltip>
@@ -274,6 +264,28 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                   {task.priority === 'high' ? '高' : task.priority === 'medium' ? '中' : '低'}优先级
                 </Tag>
                 <span className="task-status">{getStatusText(task.status)}</span>
+                {task.tags && (
+                  <Space size={4} style={{ marginLeft: 8 }}>
+                    {(Array.isArray(task.tags) ? task.tags : task.tags.split(','))
+                      .filter(tag => tag && tag.trim() !== '')
+                      .slice(0, 3)
+                      .map((tag, index) => (
+                        <Tag
+                          key={index}
+                          color={getTagColor(tag)}
+                          style={{
+                            border: `1px solid ${getTagColor(tag)}20`,
+                            backgroundColor: `${getTagColor(tag)}10`,
+                            color: getTagColor(tag),
+                            fontWeight: 500,
+                            marginBottom: 0,
+                          }}
+                        >
+                          {tag.trim()}
+                        </Tag>
+                      ))}
+                  </Space>
+                )}
               </div>
             </div>
             <Dropdown
@@ -293,9 +305,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           {task.description && (
             <div className="task-card-description">
               <Tooltip title={task.description} placement="top">
-                <div className="task-description-text">
-                  {task.description}
-                </div>
+                <div className="task-description-text">{task.description}</div>
               </Tooltip>
             </div>
           )}
@@ -315,7 +325,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               <div className={`task-due-date ${isOverdue ? 'overdue' : ''}`}>
                 <ClockCircleOutlined />
                 <span>
-                  {isOverdue && <ExclamationCircleOutlined style={{ color: '#ff4d4f', marginRight: 4 }} />}
+                  {isOverdue && (
+                    <ExclamationCircleOutlined style={{ color: '#ff4d4f', marginRight: 4 }} />
+                  )}
                   截止: {dayjs(task.dueDate).format('MM-DD HH:mm')}
                   <span className="relative-time">({dayjs(task.dueDate).fromNow()})</span>
                 </span>
@@ -323,30 +335,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             )}
           </div>
 
-          {task.tags && (
-            <div className="task-tags">
-              {(Array.isArray(task.tags) ? task.tags : task.tags.split(','))
-                .filter(tag => tag && tag.trim() !== '')
-                .map((tag, index) => (
-                  <Tag
-                    key={index}
-                    color={getTagColor(tag)}
-                    style={{
-                      border: `1px solid ${getTagColor(tag)}20`,
-                      backgroundColor: `${getTagColor(tag)}10`,
-                      color: getTagColor(tag),
-                      fontWeight: 500
-                    }}
-                  >
-                    {tag.trim()}
-                  </Tag>
-                ))}
-            </div>
-          )}
-
-          <div className="task-card-footer">
-            {getActionButtons()}
-          </div>
+          <div className="task-card-footer">{getActionButtons()}</div>
         </CardContent>
       </CustomCard>
 

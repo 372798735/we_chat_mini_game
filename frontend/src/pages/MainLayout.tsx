@@ -30,6 +30,7 @@ import {
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { logoutUser } from '@/store/slices/authSlice';
+import { ThemeToggle } from '@/components/common';
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -266,6 +267,9 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
           <div className="header-right">
             <Space size={16}>
+              {/* 主题切换 */}
+              <ThemeToggle size="small" />
+
               {/* 通知铃铛 */}
               <Dropdown
                 menu={{

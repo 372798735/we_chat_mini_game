@@ -1,0 +1,57 @@
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-icon {
+  transition: color 0.3s ease, opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.theme-icon.active {
+  color: var(--primary-color);
+  opacity: 1;
+}
+
+.theme-icon.inactive {
+  color: var(--text-tertiary);
+  opacity: 0.6;
+}
+
+.theme-icon:hover {
+  opacity: 1;
+}
+
+.theme-switch {
+  margin: 0 8px;
+}
+
+/* 深色主题下的开关样式调整 */
+[data-theme='dark'] .theme-switch .ant-switch-handle {
+  background-color: #fff !important;
+}
+
+[data-theme='dark'] .theme-switch .ant-switch-handle::before {
+  background-color: #fff !important;
+}
+
+/* 小尺寸样式调整 */
+.theme-toggle .ant-switch-small {
+  margin: 0 4px;
+}
+
+.theme-toggle .ant-switch-small + .theme-icon {
+  margin-left: 4px;
+}
+
+/* 响应式调整 */
+@media (max-width: 576px) {
+  .theme-toggle .theme-icon {
+    font-size: 12px !important;
+  }
+
+  .theme-toggle .ant-switch {
+    margin: 0 4px !important;
+  }
+}

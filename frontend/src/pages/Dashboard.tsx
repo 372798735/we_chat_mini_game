@@ -32,7 +32,6 @@ import './Dashboard.css';
 
 const { Title, Text } = Typography;
 
-
 interface DashboardProps {}
 
 /**
@@ -58,7 +57,7 @@ export const Dashboard: React.FC<DashboardProps> = () => {
         // 并行加载任务数据和统计数据
         const [tasksResponse, statisticsResponse] = await Promise.all([
           taskApi.getTasks({ pageSize: 5 }),
-          statisticsApi.getDashboardStatistics()
+          statisticsApi.getDashboardStatistics(),
         ]);
 
         // 设置任务数据
@@ -70,7 +69,6 @@ export const Dashboard: React.FC<DashboardProps> = () => {
         if (statisticsResponse) {
           setStatistics(statisticsResponse);
         }
-
       } catch (error) {
         console.error('加载仪表板数据失败:', error);
         message.error('加载数据失败，请刷新页面重试');
@@ -118,7 +116,6 @@ export const Dashboard: React.FC<DashboardProps> = () => {
     try {
       if (selectedTask) {
         // 更新任务
-        console.log('更新任务:', { ...values, id: selectedTask.id });
         await taskApi.updateTask(selectedTask.id, values);
         message.success('任务更新成功');
         // 重新加载任务列表
@@ -128,7 +125,6 @@ export const Dashboard: React.FC<DashboardProps> = () => {
         }
       } else {
         // 创建任务
-        console.log('创建任务:', values);
         const response = await taskApi.createTask(values);
         if (response) {
           setTasks(prev => [response, ...prev]);
@@ -145,7 +141,6 @@ export const Dashboard: React.FC<DashboardProps> = () => {
     }
   };
 
-  
   if (loading) {
     return <Loading fullscreen text="加载仪表板数据..." />;
   }
@@ -157,16 +152,11 @@ export const Dashboard: React.FC<DashboardProps> = () => {
         <Title level={2} style={{ margin: 0 }}>
           欢迎回来！
         </Title>
-        <Text type="secondary">
-          今天也是充满活力的一天，让我们开始专注工作吧！
-        </Text>
+        <Text type="secondary">今天也是充满活力的一天，让我们开始专注工作吧！</Text>
       </div>
 
       {/* 统计卡片 */}
-      <DashboardStats
-        loading={loading}
-        statistics={statistics}
-      />
+      <DashboardStats loading={loading} statistics={statistics} />
 
       {/* 主要内容区域 */}
       <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
@@ -174,18 +164,16 @@ export const Dashboard: React.FC<DashboardProps> = () => {
         <Col xs={24} lg={14}>
           <div className="dashboard-tasks-section">
             <div className="dashboard-section-header">
-              <Title level={4} style={{ margin: 0 }}>待办任务</Title>
-              <Button
-                type="text"
-                icon={<PlusOutlined />}
-                onClick={() => navigate('/tasks')}
-              >
+              <Title level={4} style={{ margin: 0 }}>
+                待办任务
+              </Title>
+              <Button type="text" icon={<PlusOutlined />} onClick={() => navigate('/tasks')}>
                 查看全部
               </Button>
             </div>
             {tasks.length > 0 ? (
               <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
-                {tasks.slice(0, 6).map((task) => (
+                {tasks.slice(0, 6).map(task => (
                   <Col xs={24} sm={12} lg={12} xl={8} key={task.id}>
                     <TaskCard
                       task={task}
@@ -198,10 +186,7 @@ export const Dashboard: React.FC<DashboardProps> = () => {
               </Row>
             ) : (
               <Card style={{ marginTop: 16 }}>
-                <Empty
-                  description="暂无待办任务"
-                  image={Empty.PRESENTED_IMAGE_SIMPLE}
-                >
+                <Empty description="暂无待办任务" image={Empty.PRESENTED_IMAGE_SIMPLE}>
                   <Button
                     type="primary"
                     icon={<PlusOutlined />}
@@ -246,7 +231,9 @@ export const Dashboard: React.FC<DashboardProps> = () => {
                   </Col>
                   <Col xs={12}>
                     <div style={{ textAlign: 'center' }}>
-                      <Text type="secondary" style={{ fontSize: '14px' }}>完成率</Text>
+                      <Text type="secondary" style={{ fontSize: '14px' }}>
+                        完成率
+                      </Text>
                       <Progress
                         percent={Math.round(statistics?.today?.completionRate || 0)}
                         size="small"
@@ -260,40 +247,22 @@ export const Dashboard: React.FC<DashboardProps> = () => {
 
             {/* 数据统计 */}
             <Col xs={24}>
-              <WeeklyChart
-                data={statistics?.weekly || []}
-                loading={loading}
-                title="本周数据统计"
-              />
+              <WeeklyChart data={statistics?.weekly || []} loading={loading} title="本周数据统计" />
             </Col>
           </Row>
         </Col>
       </Row>
 
       {/* 快速操作区域 */}
-      <Card
-        title="快速操作"
-        style={{ marginTop: 24 }}
-        className="dashboard-actions-card"
-      >
+      <Card title="快速操作" style={{ marginTop: 24 }} className="dashboard-actions-card">
         <Space size={16} wrap>
-          <Button
-            type="primary"
-            icon={<PlusOutlined />}
-            onClick={handleCreateTask}
-          >
+          <Button type="primary" icon={<PlusOutlined />} onClick={handleCreateTask}>
             创建任务
           </Button>
-          <Button
-            icon={<ClockCircleOutlined />}
-            onClick={() => navigate('/timer')}
-          >
+          <Button icon={<ClockCircleOutlined />} onClick={() => navigate('/timer')}>
             开始专注
           </Button>
-          <Button
-            icon={<CalendarOutlined />}
-            onClick={() => navigate('/statistics')}
-          >
+          <Button icon={<CalendarOutlined />} onClick={() => navigate('/statistics')}>
             查看统计
           </Button>
         </Space>

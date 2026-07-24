@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：绑定对应的Mapper接口全类名，实现接口与XML的关联 -->
+<mapper namespace="com.atguigu.mybatis.mapper.EmployeeMapper">
+    <!--
+       参数类型：简单单个参数
+    -->
+   <select id="selectEmployee" parameterType="java.lang.Integer" resultType="com.atguigu.mybatis.entities.Employee">
+       select * from t_emp where emp_id=#{empId};
+   </select>
+
+    <insert id="insertEmployee">
+        insert into t_emp(emp_name, emp_salary) values(#{empName}, #{empSalary})
+    </insert>
+
+    <update id="updateEmployee">
+        update t_emp set emp_salary=#{empSalary} where emp_id=#{empId}
+    </update>
+
+    <select id="selectEmpCount" resultType="int">
+        select count(*) from t_emp
+    </select>
+</mapper>

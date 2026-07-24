@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace：绑定对应的Mapper接口全类名，实现接口与XML的关联 -->
+<mapper namespace="com.atguigu.mybatis.mapper.SysUserMapper">
+
+    <!-- 通用结果集映射（复用查询字段） -->
+    <resultMap id="SysUserResultMap" type="com.atguigu.mybatis.entities.SysUser">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password" property="password"/>
+        <result column="phone" property="phone"/>
+        <result column="avatar" property="avatar"/>
+        <result column="status" property="status"/>
+        <result column="role_id" property="roleId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!-- 1.根据ID删除用户 -->
+    <delete id="deleteById">
+        DELETE FROM sys_user WHERE id = #{id}
+    </delete>
+
+    <!-- 2.新增用户（返回自增ID） -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_user (
+           username, password, phone, avatar, status, role_id, create_time, update_time
+        ) VALUES (
+           #{username},#{password},#{phone},#{avatar},#{status},#{roleId},NOW(),NOW()
+        )
+    </insert>
+
+    <!-- 3.根据ID更新用户（动态更新非空字段） -->
+    <update id="updateById">
+        UPDATE sys_user
+        <set>
+            <if test="sysUser.username != null and sysUser.username != ''">
+                username = #{sysUser.username},
+            </if>
+            <if test="sysUser.password != null and sysUser.password != ''">
+                password = #{sysUser.password}
+            </if>
+            <if test="sysUser.phone != null and sysUser.phone != ''">
+                phone = #{sysUser.phone},
+            </if>
+            <if test="sysUser.avatar != null and sysUser.avatar != ''">
+                avatar = #{sysUser.avatar},
+            </if>
+            <if test="sysUser.status != null">
+                status = #{sysUser.status},
+            </if>
+            <if test="sysUser.roleId != null">
+                role_id = #{sysUser.roleId},
+            </if>
+            update_time = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- 4.根据ID查询用户 -->
+    <select id="getById" resultMap="SysUserMapper">
+        SELECT id, username, password, phone, avatar, status, role_id, create_time, update_time
+        FROM sys_user
+        WHERE id = #{id}
+    </select>
+
+   <!-- 5. 条件查询用户列表 -->
+    <select id="list" resultMap="SysUserMapper">
+        SELECT id, username, password, phone, avatar, status, role_id, create_time, update_time
+        FROM sys_user
+        <where>
+            <if test="username != null and username != ''">
+                AND username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="phone != null and phone != ''">
+                AND phone = #{phone}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <!-- 6. 登录校验（密码不加密，直接匹配） -->
+    <select id="login" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM sys_user
+        WHERE username = #{username}
+        AND password = #{password}
+    </select>
+</mapper>
+

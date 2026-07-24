@@ -16,6 +16,10 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
+        /*
+         忽略 persist/PERSIST action 的序列化检查
+         通常与 redux-persist 配合使用，该库需要持久化部分非序列化数据
+        */
         ignoredActions: ['persist/PERSIST'],
       },
     }),

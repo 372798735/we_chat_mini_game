@@ -1,7 +1,0 @@
-
-
-  // 开始任务
-  const handleStartTask = (task: Task) => {
-    // 导航到专注计时页面并传递任务ID
-    navigate('/pomodoro?taskId=' + task.id);
-  };

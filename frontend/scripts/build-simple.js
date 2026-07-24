@@ -27,8 +27,8 @@ async function build() {
         ],
         win: {
           target: 'dir',
-          icon: 'public/icon.ico',
-          requestedExecutionLevel: 'asInvoker'
+          requestedExecutionLevel: 'asInvoker',
+          signingHashAlgorithms: []
         },
         publish: null,
         // 完全禁用代码签名

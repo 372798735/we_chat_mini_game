@@ -39,12 +39,9 @@ export const Login: React.FC<LoginProps> = () => {
   const dispatch = useAppDispatch();
   const { message } = App.useApp();
 
-  const {
-    loginLoading,
-    registerLoading,
-    error,
-    isAuthenticated,
-  } = useAppSelector((state) => state.auth);
+  const { loginLoading, registerLoading, error, isAuthenticated } = useAppSelector(
+    state => state.auth
+  );
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -100,11 +97,15 @@ export const Login: React.FC<LoginProps> = () => {
   };
 
   return (
-    <Row justify="center" align="middle" style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      padding: '20px'
-    }}>
+    <Row
+      justify="center"
+      align="middle"
+      style={{
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        padding: '20px',
+      }}
+    >
       <Col xs={22} sm={16} md={12} lg={8} xl={6}>
         <Card
           style={{
@@ -154,11 +155,7 @@ export const Login: React.FC<LoginProps> = () => {
                   { type: 'email', message: '请输入有效的邮箱地址' },
                 ]}
               >
-                <Input
-                  prefix={<MailOutlined />}
-                  placeholder="邮箱地址"
-                  autoComplete="email"
-                />
+                <Input prefix={<MailOutlined />} placeholder="邮箱地址" autoComplete="email" />
               </Form.Item>
             )}
 
@@ -170,11 +167,7 @@ export const Login: React.FC<LoginProps> = () => {
                 { max: 20, message: '用户名最多20个字符' },
               ]}
             >
-              <Input
-                prefix={<UserOutlined />}
-                placeholder="用户名"
-                autoComplete="username"
-              />
+              <Input prefix={<UserOutlined />} placeholder="用户名" autoComplete="username" />
             </Form.Item>
 
             <Form.Item
@@ -187,10 +180,8 @@ export const Login: React.FC<LoginProps> = () => {
               <Input.Password
                 prefix={<LockOutlined />}
                 placeholder="密码"
-                autoComplete={isLogin ? "current-password" : "new-password"}
-                iconRender={(visible) =>
-                  visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-                }
+                autoComplete={isLogin ? 'current-password' : 'new-password'}
+                iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
               />
             </Form.Item>
 
@@ -203,9 +194,9 @@ export const Login: React.FC<LoginProps> = () => {
                   ({ getFieldValue }) => ({
                     validator(_, value) {
                       if (!value || getFieldValue('password') === value) {
-                        return Promise.resolve()
+                        return Promise.resolve();
                       }
-                      return Promise.reject(new Error('两次输入的密码不一致'))
+                      return Promise.reject(new Error('两次输入的密码不一致'));
                     },
                   }),
                 ]}
@@ -214,16 +205,16 @@ export const Login: React.FC<LoginProps> = () => {
                   prefix={<LockOutlined />}
                   placeholder="确认密码"
                   autoComplete="new-password"
-                  iconRender={(visible) =>
-                    visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-                  }
+                  iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
                 />
               </Form.Item>
             )}
 
             {isLogin && (
               <Form.Item>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                >
                   <Form.Item name="remember" valuePropName="checked" noStyle>
                     <Checkbox>记住我</Checkbox>
                   </Form.Item>
@@ -250,8 +241,7 @@ export const Login: React.FC<LoginProps> = () => {
                 {isLogin ? '登录' : '注册'}
               </Button>
             </Form.Item>
-
-            </Form>
+          </Form>
 
           <Divider>
             <Text type="secondary" style={{ fontSize: '14px' }}>
@@ -260,11 +250,7 @@ export const Login: React.FC<LoginProps> = () => {
           </Divider>
 
           <div style={{ textAlign: 'center' }}>
-            <Button
-              type="link"
-              onClick={toggleMode}
-              style={{ fontSize: '14px' }}
-            >
+            <Button type="link" onClick={toggleMode} style={{ fontSize: '14px' }}>
               {isLogin ? '立即注册' : '立即登录'}
             </Button>
           </div>

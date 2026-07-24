@@ -394,13 +394,20 @@ export const TaskList: React.FC<TaskListProps> = () => {
           <Card style={{ marginBottom: '24px' }}>
             <Row gutter={[16, 16]}>
               <Col xs={24} sm={12} lg={8}>
-                <Input.Search
-                  placeholder="搜索任务..."
-                  value={searchValue}
-                  onChange={(e) => handleSearch(e.target.value)}
-                  onSearch={() => updateURLParams({ keyword: searchValue.trim(), page: '1' })}
-                  enterButton
-                />
+                <Space.Compact style={{ width: '100%' }}>
+                  <Input
+                    placeholder="搜索任务..."
+                    value={searchValue}
+                    onChange={(e) => handleSearch(e.target.value)}
+                    onPressEnter={() => updateURLParams({ keyword: searchValue.trim(), page: '1' })}
+                  />
+                  <Button
+                    type="primary"
+                    onClick={() => updateURLParams({ keyword: searchValue.trim(), page: '1' })}
+                  >
+                    搜索
+                  </Button>
+                </Space.Compact>
               </Col>
               <Col xs={24} sm={12} lg={6}>
                 <Select

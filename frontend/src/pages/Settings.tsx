@@ -4,6 +4,7 @@ import { SaveOutlined, ReloadOutlined } from '@ant-design/icons'
 import { useAppSelector, useAppDispatch } from '@/hooks/redux'
 import { updateSettings } from '@/store/slices/pomodoroSlice'
 import { setTheme, setLanguage } from '@/store/slices/appSlice'
+import { ThemeToggle } from '@/components/common'
 
 const { Title, Text } = Typography
 const { Option } = Select
@@ -29,8 +30,7 @@ const Settings: React.FC = () => {
         notificationEnabled: values.notificationEnabled,
       }))
 
-      // 更新主题设置
-      dispatch(setTheme(values.theme))
+      // 更新主题设置（现在通过ThemeToggle组件直接处理）
 
       // 更新语言设置
       dispatch(setLanguage(values.language))
@@ -51,9 +51,12 @@ const Settings: React.FC = () => {
       autoStartBreak: false,
       autoStartFocus: false,
       notificationEnabled: true,
-      theme: 'light',
       language: 'zh-CN',
     })
+
+    // 重置主题为浅色
+    dispatch(setTheme('light'))
+
     message.info('设置已重置')
   }
 
@@ -72,7 +75,6 @@ const Settings: React.FC = () => {
           autoStartBreak: settings.autoStartBreak,
           autoStartFocus: settings.autoStartFocus,
           notificationEnabled: settings.notificationEnabled,
-          theme,
           language,
         }}
         onFinish={handleSave}
@@ -144,15 +146,13 @@ const Settings: React.FC = () => {
           {/* 应用设置 */}
           <Col xs={24} lg={12}>
             <Card title="应用设置">
-              <Form.Item
-                label="主题"
-                name="theme"
-                rules={[{ required: true, message: '请选择主题' }]}
-              >
-                <Select>
-                  <Option value="light">浅色主题</Option>
-                  <Option value="dark">深色主题</Option>
-                </Select>
+              <Form.Item label="主题切换">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '12px 0' }}>
+                  <ThemeToggle />
+                  <div style={{ marginLeft: '16px' }}>
+                    <Text type="secondary">切换应用界面主题</Text>
+                  </div>
+                </div>
               </Form.Item>
 
               <Form.Item
